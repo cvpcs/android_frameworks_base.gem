@@ -265,7 +265,7 @@
     <!-- Button to turn off the phone, within the Phone Options dialog -->
     <string name="power_off">Power off</string>
     <!-- Button to reboot the phone into recovery, within the Phone Options dialog -->
-    <string name="reboot_recovery">Reboot recovery</string>
+    <string name="reboot_recovery">Reboot into recovery</string>
 
     <!-- Shutdown Progress Dialog. This is shown if the user chooses to power off the phone. -->
     <string name="shutdown_progress">Shutting down\u2026</string>
@@ -292,7 +292,7 @@
     <string name="global_action_power_off">Power off</string>
 
     <!-- label for item that turns off power in phone options dialog -->
-    <string name="global_action_reboot_recovery">Reboot to recovery</string>
+    <string name="global_action_reboot_recovery">Reboot into recovery</string>
 
     <!-- label for item that enables silent mode in phone options dialog -->
     <string name="global_action_toggle_silent_mode">Silent mode</string>
