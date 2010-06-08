@@ -155,7 +155,7 @@ public final class ShutdownThread extends Thread {
             }
             dialog.show();
         } else {
-            beginShutdownSequence(context);
+            beginShutdownSequence(context, ShutdownType.POWER_OFF);
         }
     }
 
