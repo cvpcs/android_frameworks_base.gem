@@ -58,8 +58,14 @@ public final class ShutdownThread extends Thread {
     private Context mContext;
     private Handler mHandler;
     
-    // whether or not the thread should reboot into recovery
-    private boolean mRebootRecovery;
+    /* whether or not the thread should reboot, and why */
+    private enum ShutdownType {
+        POWER_OFF,
+        REBOOT,
+        RECOVERY
+    }
+
+    private ShutdownType mShutdownType;
     
     private ShutdownThread() {
     }
@@ -71,7 +77,7 @@ public final class ShutdownThread extends Thread {
      * 
      * @param context Context used to display the shutdown progress dialog.
      */
-    public static void rebootRecovery(final Context context, boolean confirm) {
+    public static void reboot(final Context context, boolean confirm) {
         // ensure that only one thread is trying to power down.
         // any additional calls are just returned
         synchronized (sIsStartedGuard){
@@ -86,11 +92,16 @@ public final class ShutdownThread extends Thread {
         if (confirm) {
             final AlertDialog dialog = new AlertDialog.Builder(context)
                     .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setTitle(com.android.internal.R.string.reboot_recovery)
-                    .setMessage(com.android.internal.R.string.reboot_recovery_confirm)
+                    .setTitle(com.android.internal.R.string.reboot)
+                    .setMessage(com.android.internal.R.string.reboot_confirm)
                     .setPositiveButton(com.android.internal.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            beginRebootRecoverySequence(context);
+                            beginShutdownSequence(context, ShutdownType.REBOOT);
+                        }
+                    })
+                    .setNeutralButton(com.android.internal.R.string.recovery, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            beginShutdownSequence(context, ShutdownType.RECOVERY);
                         }
                     })
                     .setNegativeButton(com.android.internal.R.string.no, null)
@@ -102,38 +113,10 @@ public final class ShutdownThread extends Thread {
             }
             dialog.show();
         } else {
-            beginRebootRecoverySequence(context);
+            beginShutdownSequence(context, ShutdownType.REBOOT);
         }
     }
 
-    private static void beginRebootRecoverySequence(Context context) {
-        synchronized (sIsStartedGuard) {
-            sIsStarted = true;
-        }
-
-        // throw up an indeterminate system dialog to indicate radio is
-        // shutting down.
-        ProgressDialog pd = new ProgressDialog(context);
-        pd.setTitle(context.getText(com.android.internal.R.string.reboot_recovery));
-        pd.setMessage(context.getText(com.android.internal.R.string.reboot_recovery_progress));
-        pd.setIndeterminate(true);
-        pd.setCancelable(false);
-        pd.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
-        if (!context.getResources().getBoolean(
-                com.android.internal.R.bool.config_sf_slowBlur)) {
-            pd.getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
-        }
-
-        pd.show();
-
-        // start the thread that initiates shutdown
-        sInstance.mContext = context;
-        sInstance.mHandler = new Handler() {
-        };
-        sInstance.mRebootRecovery = true;
-        sInstance.start();
-    }
-    
     /** 
      * Request a clean shutdown, waiting for subsystems to clean up their
      * state etc.  Must be called from a Looper thread in which its UI
@@ -160,7 +143,7 @@ public final class ShutdownThread extends Thread {
                     .setMessage(com.android.internal.R.string.shutdown_confirm)
                     .setPositiveButton(com.android.internal.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            beginShutdownSequence(context);
+                            beginShutdownSequence(context, ShutdownType.POWER_OFF);
                         }
                     })
                     .setNegativeButton(com.android.internal.R.string.no, null)
@@ -176,7 +159,7 @@ public final class ShutdownThread extends Thread {
         }
     }
 
-    private static void beginShutdownSequence(Context context) {
+    private static void beginShutdownSequence(Context context, ShutdownType stype) {
         synchronized (sIsStartedGuard) {
             sIsStarted = true;
         }
@@ -184,8 +167,23 @@ public final class ShutdownThread extends Thread {
         // throw up an indeterminate system dialog to indicate radio is
         // shutting down.
         ProgressDialog pd = new ProgressDialog(context);
-        pd.setTitle(context.getText(com.android.internal.R.string.power_off));
-        pd.setMessage(context.getText(com.android.internal.R.string.shutdown_progress));
+
+	switch(stype) {
+            case REBOOT:
+                pd.setTitle(context.getText(com.android.internal.R.string.reboot));
+                pd.setMessage(context.getText(com.android.internal.R.string.reboot_progress));
+                break;
+            case RECOVERY:
+                pd.setTitle(context.getText(com.android.internal.R.string.recovery));
+                pd.setMessage(context.getText(com.android.internal.R.string.recovery_progress));
+                break;
+            case POWER_OFF:
+            default:
+                pd.setTitle(context.getText(com.android.internal.R.string.power_off));
+                pd.setMessage(context.getText(com.android.internal.R.string.shutdown_progress));
+                break;
+        }
+
         pd.setIndeterminate(true);
         pd.setCancelable(false);
         pd.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
@@ -200,7 +198,7 @@ public final class ShutdownThread extends Thread {
         sInstance.mContext = context;
         sInstance.mHandler = new Handler() {
         };
-        sInstance.mRebootRecovery = false;
+        sInstance.mShutdownType = stype;
         sInstance.start();
     }
 
@@ -333,15 +331,27 @@ public final class ShutdownThread extends Thread {
 
         //shutdown power
         Log.i(TAG, "Performing low-level shutdown...");
-        if(mRebootRecovery) {
-        	try {
-        		Power.reboot("recovery");
-        	} catch (Exception e) {
-        		Log.e(TAG, "Exception during reboot to recovery, continuing shutdown", e);
-        		Power.shutdown();
-        	}
-        } else {
-        	Power.shutdown();
+        switch(mShutdownType) {
+            case REBOOT:
+                try {
+                    Power.reboot(null);
+                } catch (Exception e) {
+                    Log.e(TAG, "Exception during reboot, continuing shutdown", e);
+                    Power.shutdown();
+                }
+                break;
+            case RECOVERY:
+                try {
+                    Power.reboot("recovery");
+                } catch (Exception e) {
+                    Log.e(TAG, "Exception during reboot to recovery, continuing shutdown", e);
+                    Power.shutdown();
+                }
+                break;
+            case POWER_OFF:
+            default:
+                Power.shutdown();
+                break;
         }
     }
 }
