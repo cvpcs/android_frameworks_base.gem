@@ -1345,6 +1345,19 @@ public final class Settings {
         public static final String DTMF_TONE_WHEN_DIALING = "dtmf_tone";
 
         /**
+         * Specifies various colors
+         */
+        public static final String COLOR_CLOCK = "color_clock";
+        public static final String COLOR_DATE = "color_date";
+        public static final String COLOR_NOTIFICATION_NONE = "color_notification_none";
+        public static final String COLOR_NOTIFICATION_LATEST = "color_notification_latest";
+        public static final String COLOR_NOTIFICATION_ONGOING = "color_notification_ongoing";
+        public static final String COLOR_LABEL_SPN = "color_label_spn";
+        public static final String COLOR_LABEL_PLMN = "color_label_plmn";
+        public static final String COLOR_CLEAR_BUTTON = "color_clear_button";
+        public static final String COLOR_TICKER_TEXT = "color_ticker_text";
+
+        /**
          * CDMA only settings
          * DTMF tone type played by the dialer when dialing.
          *                 0 = Normal

@@ -40,6 +40,7 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.provider.Settings
 import android.provider.Telephony;
 import android.util.Log;
 import android.view.Display;
@@ -204,6 +205,7 @@ public class StatusBarService extends IStatusBar.Stub
     private Ticker mTicker;
     private View mTickerView;
     private boolean mTicking;
+    private TickerView mTickerText;
     
     // Tracking finger for opening/closing.
     boolean mTracking;
@@ -221,6 +223,7 @@ public class StatusBarService extends IStatusBar.Stub
     boolean mAnimatingReveal = false;
     int mViewDelta;
     int[] mAbsPos = new int[2];
+    int mBlackColor = 0xff000000;
     
     // for disabling the status bar
     ArrayList<DisableRecord> mDisableRecords = new ArrayList<DisableRecord>();
@@ -234,6 +237,7 @@ public class StatusBarService extends IStatusBar.Stub
         mDisplay = ((WindowManager)context.getSystemService(
                 Context.WINDOW_SERVICE)).getDefaultDisplay();
         makeStatusBarView(context);
+        updateColors()
         mUninstallReceiver = new UninstallReceiver();
     }
 
@@ -290,8 +294,8 @@ public class StatusBarService extends IStatusBar.Stub
         
         mTicker = new MyTicker(context, sb);
 
-        TickerView tickerView = (TickerView)sb.findViewById(R.id.tickerText);
-        tickerView.mTicker = mTicker;
+        mTickerText = (TickerView)sb.findViewById(R.id.tickerText);
+        mTickerText.mTicker = mTicker;
 
         mTrackingView = (TrackingView)View.inflate(context,
                 com.android.internal.R.layout.status_bar_tracking, null);
@@ -1694,6 +1698,65 @@ public class StatusBarService extends IStatusBar.Stub
                 }
             }
         }
+    }
+
+    private void updateColors() {
+        mDateView.setTextColor(
+                Settings.System.getInt(
+                        mContext.getContentResolver(),
+                        Settings.System.COLOR_DATE,
+                        mBlackColor
+                        )
+                );
+        mNoNotificationsTitle.setTextColor(
+                Settings.System.getInt(
+                        mContext.getContentResolver(),
+                        Settings.System.COLOR_NOTIFICATION_NONE,
+                        mBlackColor
+                        )
+                );
+        mLatestTitle.setTextColor(
+                Settings.System.getInt(
+                        mContext.getContentResolver(),
+                        Settings.System.COLOR_NOTIFICATION_LATEST,
+                        mBlackColor
+                        )
+                );
+        mOngoingTitle.setTextColor(
+                Settings.System.getInt(
+                        mContext.getContentResolver(),
+                        Settings.System.COLOR_NOTIFICATION_ONGOING,
+                        mBlackColor
+                        )
+                );
+        mSpnLabel.setTextColor(
+                Settings.System.getInt(
+                        mContext.getContentResolver(),
+                        Settings.System.COLOR_LABEL_SPN,
+                        mBlackColor
+                        )
+                );
+        mPlmnLabel.setTextColor(
+                Settings.System.getInt(
+                        mContext.getContentResolver(),
+                        Settings.System.COLOR_LABEL_PLMN,
+                        mBlackColor
+                        )
+                );
+        mClearButton.setTextColor(
+                Settings.System.getInt(
+                        mContext.getContentResolver(),
+                        Settings.System.COLOR_CLEAR_BUTTON,
+                        mBlackColor
+                        )
+                );
+        mTickerText.setTextColor(
+                Settings.System.getInt(
+                        mContext.getContentResolver(),
+                        Settings.System.COLOR_TICKER_TEXT,
+                        mBlackColor
+                        )
+                );
     }
 
     private View.OnClickListener mClearButtonListener = new View.OnClickListener() {
