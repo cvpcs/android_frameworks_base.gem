@@ -40,7 +40,7 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
-import android.provider.Settings
+import android.provider.Settings;
 import android.provider.Telephony;
 import android.util.Log;
 import android.view.Display;
@@ -259,7 +259,7 @@ public class StatusBarService extends IStatusBar.Stub
         mDisplay = ((WindowManager)context.getSystemService(
                 Context.WINDOW_SERVICE)).getDefaultDisplay();
         makeStatusBarView(context);
-        updateColors()
+        updateColors();
         mUninstallReceiver = new UninstallReceiver();
     }
 
