@@ -223,7 +223,12 @@ public class StatusBarService extends IStatusBar.Stub
     boolean mAnimatingReveal = false;
     int mViewDelta;
     int[] mAbsPos = new int[2];
+
     int mBlackColor = 0xff000000;
+    int mWhiteColor = 0xffffffff;
+    int mNotificationTitleColor = mBlackColor;
+    int mNotificationTextColor = mBlackColor;
+    int mNotificationTimeColor = mBlackColor;
     
     // for disabling the status bar
     ArrayList<DisableRecord> mDisableRecords = new ArrayList<DisableRecord>();
@@ -234,6 +239,23 @@ public class StatusBarService extends IStatusBar.Stub
      */
     public StatusBarService(Context context) {
         mContext = context;
+
+        mNotificationTitleColor = Settings.System.getInt(
+                context.getContentResolver(),
+                Settings.System.COLOR_NOTIFICATION_ITEM_TITLE,
+                mBlackColor
+                );
+        mNotificationTextColor = Settings.System.getInt(
+                context.getContentResolver(),
+                Settings.System.COLOR_NOTIFICATION_ITEM_TEXT,
+                mBlackColor
+                );
+        mNotificationTimeColor = Settings.System.getInt(
+                context.getContentResolver(),
+                Settings.System.COLOR_NOTIFICATION_ITEM_TIME,
+                mBlackColor
+                );
+
         mDisplay = ((WindowManager)context.getSystemService(
                 Context.WINDOW_SERVICE)).getDefaultDisplay();
         makeStatusBarView(context);
@@ -852,6 +874,16 @@ public class StatusBarService extends IStatusBar.Stub
             Log.e(TAG, "couldn't inflate view for package " + n.pkg, exception);
             return null;
         }
+
+        try {
+            TextView niTitle = (TextView) child.findViewById(com.android.internal.R.id.title);
+            TextView niText = (TextView) child.findViewById(com.android.internal.R.id.text);
+            TextView niTime = (TextView) child.findViewById(com.android.internal.R.id.time);
+            niTitle.setTextColor(mNotificationTitleColor);
+            niText.setTextColor(mNotificationTextColor);
+            niTime.setTextColor(mNotificationTimeColor);
+        } catch (Exception e) { }
+
         content.addView(child);
 
         row.setDrawingCacheEnabled(true);
@@ -1712,21 +1744,21 @@ public class StatusBarService extends IStatusBar.Stub
                 Settings.System.getInt(
                         mContext.getContentResolver(),
                         Settings.System.COLOR_NOTIFICATION_NONE,
-                        mBlackColor
+                        mWhiteColor
                         )
                 );
         mLatestTitle.setTextColor(
                 Settings.System.getInt(
                         mContext.getContentResolver(),
                         Settings.System.COLOR_NOTIFICATION_LATEST,
-                        mBlackColor
+                        mWhiteColor
                         )
                 );
         mOngoingTitle.setTextColor(
                 Settings.System.getInt(
                         mContext.getContentResolver(),
                         Settings.System.COLOR_NOTIFICATION_ONGOING,
-                        mBlackColor
+                        mWhiteColor
                         )
                 );
         mSpnLabel.setTextColor(

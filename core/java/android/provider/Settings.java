@@ -1356,6 +1356,9 @@ public final class Settings {
         public static final String COLOR_LABEL_PLMN = "color_label_plmn";
         public static final String COLOR_CLEAR_BUTTON = "color_clear_button";
         public static final String COLOR_TICKER_TEXT = "color_ticker_text";
+        public static final String COLOR_NOTIFICATION_ITEM_TITLE = "color_notification_item_title";
+        public static final String COLOR_NOTIFICATION_ITEM_TEXT = "color_notification_item_text";
+        public static final String COLOR_NOTIFICATION_ITEM_TIME = "color_notification_item_time";
 
         /**
          * CDMA only settings
