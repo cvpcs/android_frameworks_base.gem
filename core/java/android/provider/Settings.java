@@ -1346,18 +1346,52 @@ public final class Settings {
 
         /**
          * Specifies various colors
+         * @hide
          */
         public static final String COLOR_CLOCK = "color_clock";
+        /**
+         * @hide
+         */
         public static final String COLOR_DATE = "color_date";
+        /**
+         * @hide
+         */
         public static final String COLOR_NOTIFICATION_NONE = "color_notification_none";
+        /**
+         * @hide
+         */
         public static final String COLOR_NOTIFICATION_LATEST = "color_notification_latest";
+        /**
+         * @hide
+         */
         public static final String COLOR_NOTIFICATION_ONGOING = "color_notification_ongoing";
+        /**
+         * @hide
+         */
         public static final String COLOR_LABEL_SPN = "color_label_spn";
+        /**
+         * @hide
+         */
         public static final String COLOR_LABEL_PLMN = "color_label_plmn";
-        public static final String COLOR_CLEAR_BUTTON = "color_clear_button";
-        public static final String COLOR_TICKER_TEXT = "color_ticker_text";
+        /**
+         * @hide
+         */
+        public static final String COLOR_NOTIFICATION_CLEAR_BUTTON = "color_clear_button";
+        /**
+         * @hide
+         */
+        public static final String COLOR_NOTIFICATION_TICKER_TEXT = "color_ticker_text";
+        /**
+         * @hide
+         */
         public static final String COLOR_NOTIFICATION_ITEM_TITLE = "color_notification_item_title";
+        /**
+         * @hide
+         */
         public static final String COLOR_NOTIFICATION_ITEM_TEXT = "color_notification_item_text";
+        /**
+         * @hide
+         */
         public static final String COLOR_NOTIFICATION_ITEM_TIME = "color_notification_item_time";
 
         /**

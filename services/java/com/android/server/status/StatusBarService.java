@@ -1778,14 +1778,14 @@ public class StatusBarService extends IStatusBar.Stub
         mClearButton.setTextColor(
                 Settings.System.getInt(
                         mContext.getContentResolver(),
-                        Settings.System.COLOR_CLEAR_BUTTON,
+                        Settings.System.COLOR_NOTIFICATION_CLEAR_BUTTON,
                         mBlackColor
                         )
                 );
         mTickerText.setTextColor(
                 Settings.System.getInt(
                         mContext.getContentResolver(),
-                        Settings.System.COLOR_TICKER_TEXT,
+                        Settings.System.COLOR_NOTIFICATION_TICKER_TEXT,
                         mBlackColor
                         )
                 );
