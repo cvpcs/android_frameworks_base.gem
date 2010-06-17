@@ -1782,7 +1782,7 @@ public class StatusBarService extends IStatusBar.Stub
                         mBlackColor
                         )
                 );
-        mTickerText.setTextColor(
+        mTickerText.updateColors(
                 Settings.System.getInt(
                         mContext.getContentResolver(),
                         Settings.System.COLOR_NOTIFICATION_TICKER_TEXT,

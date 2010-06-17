@@ -4,7 +4,7 @@ package com.android.server.status;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.TextSwitcher;
-
+import android.widget.TextView;
 
 public class TickerView extends TextSwitcher
 {
@@ -26,10 +26,9 @@ public class TickerView extends TextSwitcher
         final TextView t = (TextView) getNextView();
         t.setTextColor(mTextColor);
         t.setText(text);
-        showNext();;
+        showNext();
     }
 
-    @Override
     public void updateColors(int color) {
         mTextColor = color;
     }
