@@ -1392,6 +1392,10 @@ public final class Settings {
         /**
          * @hide
          */
+        public static final String COLOR_NOTIFICATION_ITEM_PROGRESS_TEXT = "color_notification_item_progress_text";
+        /**
+         * @hide
+         */
         public static final String COLOR_NOTIFICATION_ITEM_TIME = "color_notification_item_time";
 
         /**
