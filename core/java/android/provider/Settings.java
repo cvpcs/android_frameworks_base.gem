@@ -1397,42 +1397,6 @@ public final class Settings {
          * @hide
          */
         public static final String COLOR_NOTIFICATION_ITEM_TIME = "color_notification_item_time";
-        /**
-         * @hide
-         */
-        public static final String COLOR_PROGRESS_BACKGROUND_START = "color_progress_background_start";
-        /**
-         * @hide
-         */
-        public static final String COLOR_PROGRESS_BACKGROUND_CENTER = "color_progress_background_center";
-        /**
-         * @hide
-         */
-        public static final String COLOR_PROGRESS_BACKGROUND_END = "color_progress_background_end";
-        /**
-         * @hide
-         */
-        public static final String COLOR_PROGRESS_PRIMARY_START = "color_progress_primary_start";
-        /**
-         * @hide
-         */
-        public static final String COLOR_PROGRESS_PRIMARY_CENTER = "color_progress_primary_center";
-        /**
-         * @hide
-         */
-        public static final String COLOR_PROGRESS_PRIMARY_END = "color_progress_primary_end";
-        /**
-         * @hide
-         */
-        public static final String COLOR_PROGRESS_SECONDARY_START = "color_progress_secondary_start";
-        /**
-         * @hide
-         */
-        public static final String COLOR_PROGRESS_SECONDARY_CENTER = "color_progress_secondary_center";
-        /**
-         * @hide
-         */
-        public static final String COLOR_PROGRESS_SECONDARY_END = "color_progress_secondary_end";
 
         /**
          * CDMA only settings
