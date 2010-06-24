@@ -40,6 +40,7 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.provider.Telephony;
 import android.util.Slog;
 import android.view.Display;
@@ -206,6 +207,7 @@ public class StatusBarService extends IStatusBar.Stub
     private Ticker mTicker;
     private View mTickerView;
     private boolean mTicking;
+    private TickerView mTickerText;
     
     // Tracking finger for opening/closing.
     int mEdgeBorder; // corresponds to R.dimen.status_bar_edge_ignore
@@ -224,6 +226,12 @@ public class StatusBarService extends IStatusBar.Stub
     boolean mAnimatingReveal = false;
     int mViewDelta;
     int[] mAbsPos = new int[2];
+
+    int mBlackColor = 0xff000000;
+    int mWhiteColor = 0xffffffff;
+    int mNotificationTitleColor = mBlackColor;
+    int mNotificationTextColor = mBlackColor;
+    int mNotificationTimeColor = mBlackColor;
     
     // for disabling the status bar
     ArrayList<DisableRecord> mDisableRecords = new ArrayList<DisableRecord>();
@@ -234,9 +242,27 @@ public class StatusBarService extends IStatusBar.Stub
      */
     public StatusBarService(Context context) {
         mContext = context;
+
+        mNotificationTitleColor = Settings.System.getInt(
+                context.getContentResolver(),
+                Settings.System.COLOR_NOTIFICATION_ITEM_TITLE,
+                mBlackColor
+                );
+        mNotificationTextColor = Settings.System.getInt(
+                context.getContentResolver(),
+                Settings.System.COLOR_NOTIFICATION_ITEM_TEXT,
+                mBlackColor
+                );
+        mNotificationTimeColor = Settings.System.getInt(
+                context.getContentResolver(),
+                Settings.System.COLOR_NOTIFICATION_ITEM_TIME,
+                mBlackColor
+                );
+
         mDisplay = ((WindowManager)context.getSystemService(
                 Context.WINDOW_SERVICE)).getDefaultDisplay();
         makeStatusBarView(context);
+        updateColors();
         mUninstallReceiver = new UninstallReceiver();
     }
 
@@ -294,8 +320,8 @@ public class StatusBarService extends IStatusBar.Stub
         
         mTicker = new MyTicker(context, sb);
 
-        TickerView tickerView = (TickerView)sb.findViewById(R.id.tickerText);
-        tickerView.mTicker = mTicker;
+        mTickerText = (TickerView)sb.findViewById(R.id.tickerText);
+        mTickerText.mTicker = mTicker;
 
         mTrackingView = (TrackingView)View.inflate(context,
                 com.android.internal.R.layout.status_bar_tracking, null);
@@ -860,6 +886,16 @@ public class StatusBarService extends IStatusBar.Stub
             Slog.e(TAG, "couldn't inflate view for package " + n.pkg, exception);
             return null;
         }
+
+        try {
+            TextView niTitle = (TextView) child.findViewById(com.android.internal.R.id.title);
+            TextView niText = (TextView) child.findViewById(com.android.internal.R.id.text);
+            TextView niTime = (TextView) child.findViewById(com.android.internal.R.id.time);
+            niTitle.setTextColor(mNotificationTitleColor);
+            niText.setTextColor(mNotificationTextColor);
+            niTime.setTextColor(mNotificationTimeColor);
+        } catch (Exception e) { }
+
         content.addView(child);
 
         row.setDrawingCacheEnabled(true);
@@ -1729,6 +1765,65 @@ public class StatusBarService extends IStatusBar.Stub
                 mTicker.halt();
             }
         }
+    }
+
+    private void updateColors() {
+        mDateView.setTextColor(
+                Settings.System.getInt(
+                        mContext.getContentResolver(),
+                        Settings.System.COLOR_DATE,
+                        mBlackColor
+                        )
+                );
+        mNoNotificationsTitle.setTextColor(
+                Settings.System.getInt(
+                        mContext.getContentResolver(),
+                        Settings.System.COLOR_NOTIFICATION_NONE,
+                        mWhiteColor
+                        )
+                );
+        mLatestTitle.setTextColor(
+                Settings.System.getInt(
+                        mContext.getContentResolver(),
+                        Settings.System.COLOR_NOTIFICATION_LATEST,
+                        mWhiteColor
+                        )
+                );
+        mOngoingTitle.setTextColor(
+                Settings.System.getInt(
+                        mContext.getContentResolver(),
+                        Settings.System.COLOR_NOTIFICATION_ONGOING,
+                        mWhiteColor
+                        )
+                );
+        mSpnLabel.setTextColor(
+                Settings.System.getInt(
+                        mContext.getContentResolver(),
+                        Settings.System.COLOR_LABEL_SPN,
+                        mBlackColor
+                        )
+                );
+        mPlmnLabel.setTextColor(
+                Settings.System.getInt(
+                        mContext.getContentResolver(),
+                        Settings.System.COLOR_LABEL_PLMN,
+                        mBlackColor
+                        )
+                );
+        mClearButton.setTextColor(
+                Settings.System.getInt(
+                        mContext.getContentResolver(),
+                        Settings.System.COLOR_NOTIFICATION_CLEAR_BUTTON,
+                        mBlackColor
+                        )
+                );
+        mTickerText.updateColors(
+                Settings.System.getInt(
+                        mContext.getContentResolver(),
+                        Settings.System.COLOR_NOTIFICATION_TICKER_TEXT,
+                        mBlackColor
+                        )
+                );
     }
 
     private View.OnClickListener mClearButtonListener = new View.OnClickListener() {
