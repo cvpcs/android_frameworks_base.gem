@@ -37,7 +37,6 @@ LOCAL_SHARED_LIBRARIES :=     		\
 	libbinder             			\
 	libvorbisidec         			\
 	libsonivox            			\
-        libFLAC                                 \
 	libmedia              			\
 	libandroid_runtime    			\
 	libstagefright        			\
@@ -48,6 +47,7 @@ LOCAL_SHARED_LIBRARIES :=     		\
 ifneq ($(BUILD_WITHOUT_PV),true)
 LOCAL_SHARED_LIBRARIES += \
 	libopencore_player    \
+        libFLAC               \
 	libopencore_author
 else
 LOCAL_CFLAGS += -DNO_OPENCORE
