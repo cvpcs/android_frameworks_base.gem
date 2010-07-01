@@ -45,7 +45,9 @@ import android.preference.PreferenceActivity;
 import android.provider.Settings;
 import android.util.StateSet;
 
-
+/**
+ * @hide
+ */
 public class ColorPickerDialog extends Dialog {
 
     public interface OnColorChangedListener {
