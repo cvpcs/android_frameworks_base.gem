@@ -1592,6 +1592,22 @@ public final class Settings {
          * @hide
          */
         public static final String COLOR_NOTIFICATION_ITEM_TIME = "color_notification_item_time";
+	/**
+	 * @hide
+	 */
+	public static final String COLOR_BATTERY_PERCENTAGE = "color_battery_percentage";
+
+	/**
+	 * should the clock in the notification bar be visible?
+	 * @hide
+	 */
+	public static final String DISPLAY_STATUS_BAR_CLOCK = "display_status_bar_clock";
+
+	/**
+	 * should we show battery percentage on the battery icon?
+	 * @hide
+	 */
+	public static final String DISPLAY_BATTERY_PERCENTAGE = "display_battery_percentage";
 
         /**
          * CDMA only settings
