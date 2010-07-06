@@ -202,7 +202,7 @@ static status_t HandleFLAC(const char *filename, MediaScannerClient *client) {
     FLAC__stream_decoder_set_md5_checking(decoder, false);
     FLAC__stream_decoder_set_metadata_ignore_all(decoder);
     FLAC__stream_decoder_set_metadata_respond(decoder, FLAC__METADATA_TYPE_STREAMINFO);
-    FLAC__stream_decoder_set_metadata_respond(deocder, FLAC__METADATA_TYPE_VORBIS_COMMENT);
+    FLAC__stream_decoder_set_metadata_respond(decoder, FLAC__METADATA_TYPE_VORBIS_COMMENT);
 
     FLAC__StreamDecoderInitStatus init_status;
     init_status = FLAC__stream_decoder_init_file(decoder, filename, flac_write_cb,
