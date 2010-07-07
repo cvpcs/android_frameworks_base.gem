@@ -261,8 +261,5 @@ class StatusBarIcon {
     int getNumber() {
         return mData.number;
     }
-
-    private void updateColors(Context context) {
-    }
 }
 
