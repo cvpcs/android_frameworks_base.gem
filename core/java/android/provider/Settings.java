@@ -3435,6 +3435,11 @@ public final class Settings {
         public static final String DISPLAY_ADB_USB_DEBUGGING_NOTIFICATION = "display_adb_usb_debugging_notification";
 
         /**
+         * Setting to enable the LED notification regardless of whether the screen is on or off
+         */
+        public static final String DISPLAY_NOTIFICATION_LED_SCREEN_ON = "display_notification_led_screen_on";
+
+        /**
          * @hide
          */
         public static final String[] SETTINGS_TO_BACKUP = {
