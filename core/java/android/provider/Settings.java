@@ -3436,6 +3436,7 @@ public final class Settings {
 
         /**
          * Setting to enable the LED notification regardless of whether the screen is on or off
+         * @hide
          */
         public static final String DISPLAY_NOTIFICATION_LED_SCREEN_ON = "display_notification_led_screen_on";
 
