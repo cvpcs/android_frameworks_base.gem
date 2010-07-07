@@ -119,7 +119,7 @@ public class StatusBarPolicy {
     private TelephonyManager mPhone;
     private IBinder mPhoneIcon;
 
-    //***** Signal strength icons
+    // ***** Signal strength icons
     private IconData mPhoneData;
     //GSM/UMTS
     private static final int[] sSignalImages = new int[] {
@@ -236,7 +236,7 @@ public class StatusBarPolicy {
         // 128-255 Reserved
     };
 
-    //***** Data connection icons
+    // ***** Data connection icons
     private int[] mDataIconList = sDataNetType_g;
     //GSM/UMTS
     private static final int[] sDataNetType_g = new int[] {
@@ -425,7 +425,7 @@ public class StatusBarPolicy {
                 new com.android.server.status.StorageNotification(context));
 
         // battery
-        mBatteryData = IconData.makeIcon("battery",
+        mBatteryData = IconData.makeIconNumber("battery",
                 null, com.android.internal.R.drawable.stat_sys_battery_unknown, 0, 0);
         mBatteryIcon = service.addIcon(mBatteryData, null);
 
@@ -648,7 +648,6 @@ public class StatusBarPolicy {
     private final void updateBattery(Intent intent) {
         mBatteryData.iconId = intent.getIntExtra("icon-small", 0);
         mBatteryData.iconLevel = intent.getIntExtra("level", 0);
-        mService.updateIcon(mBatteryIcon, mBatteryData, null);
 
         boolean plugged = intent.getIntExtra("plugged", 0) != 0;
         int level = intent.getIntExtra("level", -1);
@@ -659,6 +658,9 @@ public class StatusBarPolicy {
                     + " mBatteryLevel=" + mBatteryLevel
                     + " mBatteryFirst=" + mBatteryFirst);
         }
+
+        mBatteryData.number = (plugged || level >= 100) ? -1 : level;
+        mService.updateIcon(mBatteryIcon, mBatteryData, null);
 
         boolean oldPlugged = mBatteryPlugged;
 
@@ -681,6 +683,7 @@ public class StatusBarPolicy {
             }
         }
         */
+
         if (false) {
             Slog.d(TAG, "plugged=" + plugged + " oldPlugged=" + oldPlugged + " level=" + level);
         }
