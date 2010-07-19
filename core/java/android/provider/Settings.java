@@ -3441,6 +3441,12 @@ public final class Settings {
         public static final String DISPLAY_NOTIFICATION_LED_SCREEN_ON = "display_notification_led_screen_on";
 
         /**
+         * Setting to change the minimum brightness value in auto-brightness mode
+         * @hide
+         */
+        public static final String AUTO_BRIGHTNESS_MINIMUM_BACKLIGHT_LEVEL = "auto_brightness_minimum_backlight_level";
+
+        /**
          * @hide
          */
         public static final String[] SETTINGS_TO_BACKUP = {
