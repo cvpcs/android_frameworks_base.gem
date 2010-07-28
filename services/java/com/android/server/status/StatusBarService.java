@@ -887,15 +887,7 @@ public class StatusBarService extends IStatusBar.Stub
             return null;
         }
 
-        try {
-            TextView niTitle = (TextView) child.findViewById(com.android.internal.R.id.title);
-            TextView niText = (TextView) child.findViewById(com.android.internal.R.id.text);
-            TextView niTime = (TextView) child.findViewById(com.android.internal.R.id.time);
-            niTitle.setTextColor(mNotificationTitleColor);
-            niText.setTextColor(mNotificationTextColor);
-            niTime.setTextColor(mNotificationTimeColor);
-        } catch (Exception e) { }
-
+        recursivelySetNotificationColors(child);
         content.addView(child);
 
         row.setDrawingCacheEnabled(true);
@@ -904,6 +896,42 @@ public class StatusBarService extends IStatusBar.Stub
         notification.contentView = child;
 
         return row;
+    }
+
+    void recursivelySetNotificationColors(View v) {
+        ViewGroup vg = (ViewGroup)v;
+        int count = vg.getChildCount();
+
+        if (count > 0) {
+            for (int i = 0; i < count; i++) {
+                try {
+                    setNotificationTextViewColors((TextView)vg.getChildAt(i));
+                } catch (Exception e) { }
+                try {
+                    recursivelySetNotificationColors((View)vg.getChildAt(i));
+                } catch (Exception e) { }
+            }
+        }
+    }
+
+    void setNotificationTextViewColors(TextView tv) {
+        try {
+            int id = tv.getId();
+            switch (id) {
+                case com.android.internal.R.id.title:
+                    tv.setTextColor(mNotificationTitleColor);
+                    break;
+                case com.android.internal.R.id.text:
+                    tv.setTextColor(mNotificationTextColor);
+                    break;
+                case com.android.internal.R.id.time:
+                    tv.setTextColor(mNotificationTimeColor);
+                    break;
+                default:
+                    tv.setTextColor(mNotificationTextColor);
+                    break;
+            }
+        } catch (Exception e) { }
     }
 
     void addNotificationView(StatusBarNotification notification) {
