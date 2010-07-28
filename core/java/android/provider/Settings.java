@@ -1610,6 +1610,12 @@ public final class Settings {
 	public static final String DISPLAY_BATTERY_PERCENTAGE = "display_battery_percentage";
 
         /**
+         * should we display the lockscreen music controls?
+         * @hide
+         */
+        public static final String DISPLAY_LOCKSCREEN_MUSIC_CONTROLS = "display_lockscreen_music_controls";
+
+        /**
          * CDMA only settings
          * DTMF tone type played by the dialer when dialing.
          *                 0 = Normal
