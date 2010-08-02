@@ -1611,6 +1611,9 @@ public final class Settings {
 
         /**
          * should we display the lockscreen music controls?
+         *                 0 = No controls
+         *                 1 = Only display controls when music is active
+         *                 2 = Always display controls
          * @hide
          */
         public static final String DISPLAY_LOCKSCREEN_MUSIC_CONTROLS = "display_lockscreen_music_controls";
