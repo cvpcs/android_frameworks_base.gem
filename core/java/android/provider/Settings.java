@@ -1619,6 +1619,12 @@ public final class Settings {
         public static final String DISPLAY_LOCKSCREEN_MUSIC_CONTROLS = "display_lockscreen_music_controls";
 
         /**
+         * should volume button music controls work?
+         * @hide
+         */
+        public static final String ENABLE_VOLBTN_MUSIC_CONTROLS = "enable_volbtn_music_controls";
+
+        /**
          * CDMA only settings
          * DTMF tone type played by the dialer when dialing.
          *                 0 = Normal
