@@ -424,10 +424,9 @@ void EffectHeadphone::configure(const float samplingFrequency) {
 
     mReverbDelayL.setParameters(mSamplingFrequency, 0.030f);
     mReverbDelayR.setParameters(mSamplingFrequency, 0.030f);
-    /* the -3 dB point is around 700 Hz, similar to the classic design
-     * in bs2b. */
-    mLowpassL.setHighShelf1(1500.0f, mSamplingFrequency, -16.0f);
-    mLowpassR.setHighShelf1(1500.0f, mSamplingFrequency, -16.0f);
+    /* the -3 dB point is around 650 Hz, giving about 300 us to work with */
+    mLowpassL.setHighShelf1(900.0f, mSamplingFrequency, -8.0f);
+    mLowpassR.setHighShelf1(900.0f, mSamplingFrequency, -8.0f);
     /* Rockbox has a 0.3 ms delay line (13 samples at 44100 Hz), but
      * I think it makes the whole effect sound pretty bad so I skipped it! */
 }
