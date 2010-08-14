@@ -329,9 +329,6 @@ float EffectCompression::estimateLevel(const int16_t* audioData, int32_t frames,
 EffectTone::EffectTone()
 {
     for (int32_t i = 0; i < 5; i ++) {
-        mBand[i] = 0;
-    }
-    for (int32_t i = 0; i < 5; i ++) {
         setBand(i, 0);
     }
 }
@@ -345,54 +342,44 @@ EffectTone::~EffectTone() {
 
 void EffectTone::configure(const float samplingFrequency) {
     Effect::configure(samplingFrequency);
-    refreshBands();
+    for (int i = 0; i < 4; i ++) {
+        setBand(i, mBand[i]);
+    }
 }
  
 void EffectTone::setBand(int32_t band, float dB)
 {
     mBand[band] = dB;
-    refreshBands();
-}
+    float centerFrequency = 62.5f * powf(4, band);
+    switch (band) {
+    case 0:
+        mFilterL[band].setLowShelf(centerFrequency * 2.0f, mSamplingFrequency, dB, 1.0f);
+        mFilterR[band].setLowShelf(centerFrequency * 2.0f, mSamplingFrequency, dB, 1.0f);
+        break;
 
-void EffectTone::refreshBands() {
-    mGain = toFixedPoint(powf(10, mBand[0] / 20));
-
-    for (int32_t band = 0; band < 3; band ++) {
-        float dB = mBand[band + 1] - mBand[0];
-        float centerFrequency = 250.0f * powf(4, band);
-
-        mFilterL[band].setPeakingEqualizer(centerFrequency, mSamplingFrequency, dB, 3.0f);
-        mFilterR[band].setPeakingEqualizer(centerFrequency, mSamplingFrequency, dB, 3.0f);
-    }
-
-    {
-        int32_t band = 3;
-
-        float dB = mBand[band + 1] - mBand[0];
-        float centerFrequency = 250.0f * powf(4, band);
-
+    case 4:
         mFilterL[band].setHighShelf(centerFrequency * 0.5f, mSamplingFrequency, dB, 1.0f);
         mFilterR[band].setHighShelf(centerFrequency * 0.5f, mSamplingFrequency, dB, 1.0f);
+        break;
+        
+    default:
+        mFilterL[band].setPeakingEqualizer(centerFrequency, mSamplingFrequency, dB, 3.0f);
+        mFilterR[band].setPeakingEqualizer(centerFrequency, mSamplingFrequency, dB, 3.0f);
+        break;
     }
 }
 
 void EffectTone::process(int32_t* inout, int32_t frames)
 {
     for (int32_t i = 0; i < frames; i ++) {
-        int32_t tmpL = inout[0] >> fixedPointDecimals;
-        int32_t tmpR = inout[1] >> fixedPointDecimals;
-        /* 16 bits */
-       
-        /* bass control is really a global gain compensated by other
-         * controls */
-        tmpL = tmpL * mGain;
-        tmpR = tmpR * mGain;
+        int32_t tmpL = inout[0];
+        int32_t tmpR = inout[1];
         /* 28 bits */
-
+       
         /* evaluate the other filters.
          * I'm ignoring the integer truncation problem here, but in reality
          * it should be accounted for. */
-        for (int32_t j = 0; j < 4; j ++) {
+        for (int32_t j = 0; j < 5; j ++) {
             tmpL = mFilterL[j].process(tmpL >> fixedPointDecimals);
             tmpR = mFilterR[j].process(tmpR >> fixedPointDecimals);
         }

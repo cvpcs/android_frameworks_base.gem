@@ -101,10 +101,7 @@ class EffectCompression : public Effect {
 
 class EffectTone : public Effect {
     float mBand[5];
-    int32_t mGain;
-    Biquad mFilterL[4], mFilterR[4];
-
-    void refreshBands();
+    Biquad mFilterL[5], mFilterR[5];
 
     public:
     EffectTone();
