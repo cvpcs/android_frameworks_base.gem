@@ -342,30 +342,27 @@ EffectTone::~EffectTone() {
 
 void EffectTone::configure(const float samplingFrequency) {
     Effect::configure(samplingFrequency);
-    for (int i = 0; i < 4; i ++) {
-        setBand(i, mBand[i]);
+    for (int i = 0; i < 5; i ++) {
+        mBand[i] = 0;
     }
+    refreshBands();
 }
  
 void EffectTone::setBand(int32_t band, float dB)
 {
     mBand[band] = dB;
-    float centerFrequency = 62.5f * powf(4, band);
-    switch (band) {
-    case 0:
-        mFilterL[band].setLowShelf(centerFrequency * 2.0f, mSamplingFrequency, dB, 1.0f);
-        mFilterR[band].setLowShelf(centerFrequency * 2.0f, mSamplingFrequency, dB, 1.0f);
-        break;
+    refreshBands();
+}
 
-    case 4:
-        mFilterL[band].setHighShelf(centerFrequency * 0.5f, mSamplingFrequency, dB, 1.0f);
-        mFilterR[band].setHighShelf(centerFrequency * 0.5f, mSamplingFrequency, dB, 1.0f);
-        break;
-        
-    default:
-        mFilterL[band].setPeakingEqualizer(centerFrequency, mSamplingFrequency, dB, 3.0f);
-        mFilterR[band].setPeakingEqualizer(centerFrequency, mSamplingFrequency, dB, 3.0f);
-        break;
+void EffectTone::refreshBands()
+{
+    mGain = toFixedPoint(powf(10, mBand[0] / 20));
+    for (int band = 0; band < 4; band ++) {
+        float centerFrequency = 62.5f * powf(4, band);
+        float dB = mBand[band+1] - mBand[band];
+
+        mFilterL[band].setHighShelf(centerFrequency * 2.0f, mSamplingFrequency, dB, 1.0f);
+        mFilterR[band].setHighShelf(centerFrequency * 2.0f, mSamplingFrequency, dB, 1.0f);
     }
 }
 
@@ -375,11 +372,16 @@ void EffectTone::process(int32_t* inout, int32_t frames)
         int32_t tmpL = inout[0];
         int32_t tmpR = inout[1];
         /* 28 bits */
-       
+     
+        /* first "shelve" is just gain */ 
+        tmpL = (tmpL >> fixedPointDecimals) * mGain;
+        tmpR = (tmpR >> fixedPointDecimals) * mGain;
+        /* 28 bits */
+ 
         /* evaluate the other filters.
          * I'm ignoring the integer truncation problem here, but in reality
          * it should be accounted for. */
-        for (int32_t j = 0; j < 5; j ++) {
+        for (int32_t j = 0; j < 4; j ++) {
             tmpL = mFilterL[j].process(tmpL >> fixedPointDecimals);
             tmpR = mFilterR[j].process(tmpR >> fixedPointDecimals);
         }
