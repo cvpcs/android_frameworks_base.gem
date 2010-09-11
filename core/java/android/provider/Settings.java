@@ -1619,6 +1619,12 @@ public final class Settings {
         public static final String DISPLAY_LOCKSCREEN_MUSIC_CONTROLS = "display_lockscreen_music_controls";
 
         /**
+         * should we use rotary or tab lockscreen?
+         * @hide
+         */
+        public static final String USE_ROTARY_LOCKSCREEN = "use_rotary_lockscreen";
+
+        /**
          * should volume button music controls work?
          * @hide
          */
