@@ -76,6 +76,7 @@ public class NetworkModeButton extends PowerButton{
         Intent intent = new Intent(MODIFY_NETWORK_MODE);
         switch (NETWORK_MODE) {
         case Phone.NT_MODE_WCDMA_PREF:
+        case Phone.NT_MODE_GSM_UMTS:
             intent.putExtra(NETWORK_MODE_KEY, Phone.NT_MODE_GSM_ONLY);
             CURRENT_INTERNAL_STATE = PowerButton.STATE_TURNING_OFF;
             INTENDED_NETWORK_MODE=Phone.NT_MODE_GSM_ONLY;
@@ -145,6 +146,7 @@ public class NetworkModeButton extends PowerButton{
         switch(NETWORK_MODE) {
             case Phone.NT_MODE_WCDMA_PREF:
             case Phone.NT_MODE_WCDMA_ONLY:
+            case Phone.NT_MODE_GSM_UMTS:
                 return PowerButton.STATE_ENABLED;
             case Phone.NT_MODE_GSM_ONLY:
                 return PowerButton.STATE_DISABLED;
