@@ -729,6 +729,10 @@ class PackageManagerService extends IPackageManager.Stub {
                         ? LOG_UID : FIRST_APPLICATION_UID,
                 ApplicationInfo.FLAG_SYSTEM);
 
+	// add magic gem uid so we can run gem stuff without being THE system user
+	mSettings.addSharedUserLP("android.uid.gem",
+		Process.GEM_UID, ApplicationInfo.FLAG_SYSTEM);
+
         String separateProcesses = SystemProperties.get("debug.separate_processes");
         if (separateProcesses != null && separateProcesses.length() > 0) {
             if ("*".equals(separateProcesses)) {
