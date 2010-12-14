@@ -342,12 +342,14 @@ status_t AudioSystem::setVoiceVolume(float value)
     return af->setVoiceVolume(value);
 }
 
+#if (defined __DEVICE_shadow__) || (defined __DEVICE_droid2__)
 // stubs for a2dp passthrough
 // this is needed to help maintain linking when building for shadow
 bool AudioSystem::isA2dpCapable(uint32_t format, uint32_t channels, uint32_t samplingRate) { return false; }
 void AudioSystem::a2dpReconfigure(int output, uint32_t format, uint32_t channels, uint32_t sampleRate) { }
 void AudioSystem::stopA2dp() { }
 bool AudioSystem::a2dpCategory2Supported() { return false; }
+#endif
 
 status_t AudioSystem::getRenderPosition(uint32_t *halFrames, uint32_t *dspFrames, int stream)
 {
