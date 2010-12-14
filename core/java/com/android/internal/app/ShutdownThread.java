@@ -27,6 +27,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Power;
 import android.os.PowerManager;
@@ -40,6 +41,8 @@ import android.os.storage.IMountShutdownObserver;
 import com.android.internal.telephony.ITelephony;
 import android.util.Log;
 import android.view.WindowManager;
+
+import java.io.File;
 
 public final class ShutdownThread extends Thread {
     // constants
@@ -59,6 +62,13 @@ public final class ShutdownThread extends Thread {
     
     private static boolean mReboot;
     private static String mRebootReason;
+
+    // we add this so we know if we have a hijacked recovery
+    private static final String HIJACKED_RECOVERY_FILE = "/data/.recovery_mode";
+    private static final boolean HIJACKED_RECOVERY = (
+        Build.BOARD.equals("shadow") ||
+        Build.BOARD.equals("droid2")
+        );
 
     // static instance of this thread
     private static final ShutdownThread sInstance = new ShutdownThread();
@@ -263,6 +273,31 @@ public final class ShutdownThread extends Thread {
                 actionDone();
             }
         };
+
+        // if mShutdownType == RECOVERY, and we are hijacked, we need to alter that
+	if(mShutdownType == ShutdownType.RECOVERY &&
+           HIJACKED_RECOVERY) {
+            Log.i(TAG, "Hijacked recovery detected, altering shutdown sequence accordingly...");
+            // create our recovery file (or attempt to anyway)
+            boolean recoveryFileCreated = false;
+            Exception recoveryFileException = null;
+            try {
+                recoveryFileCreated = new File(HIJACKED_RECOVERY_FILE).createNewFile();
+            } catch(Exception e) {
+                recoveryFileCreated = false;
+                recoveryFileException = e;
+            }
+
+            if(!recoveryFileCreated) {
+                if(recoveryFileException == null) {
+                    Log.e(TAG, "Failed to create hijacked recovery file [" + HIJACKED_RECOVERY_FILE + "]!  Standard reboot will occur.");
+                } else {
+                    Log.e(TAG, "Failed to create hijacked recovery file [" + HIJACKED_RECOVERY_FILE + "]!  Standard reboot will occur.", recoveryFileException);
+                }
+            }
+            // set to standard reboot
+            mShutdownType = ShutdownType.REBOOT;
+        }
         
         Log.i(TAG, "Sending shutdown broadcast...");
         
