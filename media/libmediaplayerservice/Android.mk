@@ -27,6 +27,7 @@ LOCAL_SHARED_LIBRARIES :=     		\
 	libbinder             			\
 	libvorbisidec         			\
 	libsonivox            			\
+        libFLAC                                 \
 	libmedia              			\
 	libcamera_client      			\
 	libandroid_runtime    			\
@@ -42,7 +43,6 @@ LOCAL_STATIC_LIBRARIES := \
 ifneq ($(BUILD_WITHOUT_PV),true)
 LOCAL_SHARED_LIBRARIES += \
 	libopencore_player    \
-        libFLAC               \
 	libopencore_author
 else
 LOCAL_CFLAGS += -DNO_OPENCORE
