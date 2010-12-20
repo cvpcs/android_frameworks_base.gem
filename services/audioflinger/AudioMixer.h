@@ -198,7 +198,7 @@ private:
     static void process__validate(state_t* state, AudioDSP& dsp);
     static void process__nop(state_t* state, AudioDSP& dsp);
     static void process__genericNoResampling(state_t* state, AudioDSP& dsp);
-    static void process__genericResampling(state_t* stateAudioDSP& dsp);
+    static void process__genericResampling(state_t* state, AudioDSP& dsp);
 };
 
 // ----------------------------------------------------------------------------
