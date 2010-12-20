@@ -90,7 +90,7 @@ public final class ShutdownThread extends Thread {
         RECOVERY
     }
 
-    private ShutdownType mShutdownType;
+    private static ShutdownType mShutdownType;
 
     private ShutdownThread() {
     }
