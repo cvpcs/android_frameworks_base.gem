@@ -61,11 +61,6 @@ public:
         ACCESS_BUFFER,
     } AccessMode;
 
-    enum {
-        /* data larger than this does not get uncompressed into a buffer */
-        UNCOMPRESS_DATA_MAX = 3 * 1024 * 1024
-    };
-
     /*
      * Read data from the current offset.  Returns the actual number of
      * bytes read, 0 on EOF, or -1 on error.
@@ -312,6 +307,8 @@ private:
 
     FileMap*    mMap;           // for memory-mapped input
     int         mFd;            // for file input
+
+    class StreamingZipInflater* mZipInflater;  // for streaming large compressed assets
 
     unsigned char*  mBuf;       // for getBuffer()
 };
