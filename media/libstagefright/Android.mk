@@ -48,7 +48,7 @@ LOCAL_C_INCLUDES:= \
 	$(JNI_H_INCLUDE) \
         $(TOP)/frameworks/base/include/media/stagefright/openmax \
         $(TOP)/external/tremolo \
-        $(TOP)/external/flac/include
+        $(TOP)/external/flac/include \
         $(TOP)/frameworks/base/media/libstagefright/rtsp
 
 LOCAL_SHARED_LIBRARIES := \
