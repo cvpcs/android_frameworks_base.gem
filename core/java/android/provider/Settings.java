@@ -3477,6 +3477,12 @@ public final class Settings {
         public static final String AUTO_BRIGHTNESS_MINIMUM_BACKLIGHT_LEVEL = "auto_brightness_minimum_backlight_level";
 
         /**
+         * Setting to enable long press back to kill processes
+         * @hide
+         */
+        public static final String KILL_APP_LONGPRESS_BACK = "kill_app_longpress_back";
+
+        /**
          * @hide
          */
         public static final String[] SETTINGS_TO_BACKUP = {
