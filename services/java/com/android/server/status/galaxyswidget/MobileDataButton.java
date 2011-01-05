@@ -11,32 +11,28 @@ public class MobileDataButton extends PowerButton {
 
     public static final String MOBILE_DATA_CHANGED = "com.android.internal.telephony.MOBILE_DATA_CHANGED";
 
-    static MobileDataButton ownButton = null;
+    public static boolean STATE_CHANGE_REQUEST = false;
+    private static MobileDataButton OWN_BUTTON = null;
 
-    static boolean stateChangeRequest = false;
+    public MobileDataButton() { mType = PowerButton.BUTTON_MOBILEDATA; }
 
-    public static boolean getDataRomingEnabled(Context context) {
-        return Settings.Secure.getInt(context.getContentResolver(),
-                Settings.Secure.DATA_ROAMING,0) > 0;
-    }
-
-    /**
-     * Gets the state of data
-     *
-     * @return true if enabled.
-     */
-    private static boolean getDataState(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context
-            .getSystemService(Context.CONNECTIVITY_SERVICE);
-        return cm.getMobileDataEnabled();
-    }
-
-    /**
-     * Toggles the state of data.
-     *
-     */
     @Override
-    public void toggleState(Context context) {
+    public void updateState() {
+        if (STATE_CHANGE_REQUEST) {
+            mIcon = R.drawable.stat_data_on;
+            mState = PowerButton.STATE_INTERMEDIATE;
+        } else  if (getDataState(mView.getContext())) {
+            mIcon = R.drawable.stat_data_on;
+            mState = PowerButton.STATE_ENABLED;
+        } else {
+            mIcon = R.drawable.stat_data_off;
+            mState = PowerButton.STATE_DISABLED;
+        }
+    }
+
+    @Override
+    protected void toggleState() {
+        Context context = mView.getContext();
         boolean enabled = getDataState(context);
 
         ConnectivityManager cm = (ConnectivityManager) context
@@ -48,36 +44,28 @@ public class MobileDataButton extends PowerButton {
         }
     }
 
-    @Override
-    public void updateState(Context context) {
-        if (stateChangeRequest) {
-            currentIcon = R.drawable.stat_data_on;
-            currentState = PowerButton.STATE_INTERMEDIATE;
-        } else  if (getDataState(context)) {
-            currentIcon = R.drawable.stat_data_on;
-            currentState = PowerButton.STATE_ENABLED;
-        } else {
-            currentIcon = R.drawable.stat_data_off;
-            currentState = PowerButton.STATE_DISABLED;
-        }
-    }
-
     public static MobileDataButton getInstance() {
-        if (ownButton == null) ownButton = new MobileDataButton();
-
-        return ownButton;
+        if (OWN_BUTTON == null) OWN_BUTTON = new MobileDataButton();
+        return OWN_BUTTON;
     }
 
-    @Override
-    void initButton(int position) {
+    private static boolean getDataRomingEnabled(Context context) {
+        return Settings.Secure.getInt(context.getContentResolver(),
+                Settings.Secure.DATA_ROAMING,0) > 0;
+    }
+
+    private static boolean getDataState(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context
+            .getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getMobileDataEnabled();
     }
 
     public void networkModeChanged(Context context, int networkMode) {
-        if (stateChangeRequest) {
+        if (STATE_CHANGE_REQUEST) {
             ConnectivityManager cm = (ConnectivityManager) context
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
             cm.setMobileDataEnabled(true);
-            stateChangeRequest=false;
+            STATE_CHANGE_REQUEST=false;
         }
     }
 

@@ -1896,154 +1896,6 @@ public class StatusBarService extends IStatusBar.Stub
         }
     };
 
-    /** Power Widget **/
-   private View.OnClickListener mPowerListener = new View.OnClickListener() {
-        public void onClick(View v) {
-            LinearLayout layout = (LinearLayout)v;
-            String type = (String)layout.getTag();
-            if(PowerButton.TOGGLE_WIFI.equals(type)) {
-                WifiButton.getInstance().toggleState(mContext);
-            } else if(PowerButton.TOGGLE_GPS.equals(type)) {
-                GPSButton.getInstance().toggleState(mContext);
-            } else if(PowerButton.TOGGLE_BLUETOOTH.equals(type)) {
-                BluetoothButton.getInstance().toggleState(mContext);
-            } else if(PowerButton.TOGGLE_BRIGHTNESS.equals(type)) {
-                BrightnessButton.getInstance().toggleState(mContext);
-            } else if(PowerButton.TOGGLE_SOUND.equals(type)) {
-                SoundButton.getInstance().toggleState(mContext);
-            } else if(PowerButton.TOGGLE_SYNC.equals(type)) {
-                SyncButton.getInstance().toggleState(mContext);
-            } else if(PowerButton.TOGGLE_WIFIAP.equals(type)) {
-                WifiApButton.getInstance().toggleState(mContext);
-            } else if(PowerButton.TOGGLE_SCREENTIMEOUT.equals(type)) {
-                ScreenTimeoutButton.getInstance().toggleState(mContext);
-            } else if(PowerButton.TOGGLE_MOBILEDATA.equals(type)) {
-                MobileDataButton.getInstance().toggleState(mContext);
-            } else if(PowerButton.TOGGLE_LOCKSCREEN.equals(type)) {
-                LockScreenButton.getInstance().toggleState(mContext);
-            } else if(PowerButton.TOGGLE_NETWORKMODE.equals(type)) {
-                NetworkModeButton.getInstance().toggleState(mContext);
-            } else if(PowerButton.TOGGLE_AUTOROTATE.equals(type)) {
-                AutoRotateButton.getInstance().toggleState(mContext);
-            } else if(PowerButton.TOGGLE_AIRPLANE.equals(type)) {
-                AirplaneButton.getInstance().toggleState(mContext);
-            }
-            mGalaxySWidget.updateWidget();
-        }
-    };
-
-    private void setupPowerWidget() {
-        LinearLayout layout;
-        String lists = Settings.System.getString(mContext.getContentResolver(),
-                                Settings.System.WIDGET_BUTTONS);
-        Log.i("setupPowerWidget", "List: "+lists);
-        if(lists == null) {
-            lists = "toggleWifi|toggleBluetooth|toggleGPS|toggleSound";
-        }
-        List<String> list = Arrays.asList(lists.split("\\|"));
-        clearWidget();
-
-        int posi;
-        for(posi = 0; posi < list.size(); posi++) {
-            layout = (LinearLayout)mExpandedView.findViewById(PowerButton.getLayoutID(posi + 1));
-            String buttonType = list.get(posi);
-            layout.setVisibility(View.VISIBLE);
-            layout.setTag(buttonType);
-            layout.setOnClickListener(mPowerListener);
-            setupWidget(buttonType, posi + 1);
-        }
-        mGalaxySWidget.updateWidget();
-    }
-
-    private void setupWidget(String buttonType, int position) {
-
-        if(PowerButton.TOGGLE_WIFI.equals(buttonType)) {
-            WifiButton.getInstance().setupButton(position);
-        } else if(PowerButton.TOGGLE_GPS.equals(buttonType)) {
-            GPSButton.getInstance().setupButton(position);
-        } else if(PowerButton.TOGGLE_BLUETOOTH.equals(buttonType)) {
-            BluetoothButton.getInstance().setupButton(position);
-        } else if(PowerButton.TOGGLE_BRIGHTNESS.equals(buttonType)) {
-            BrightnessButton.getInstance().setupButton(position);
-        } else if(PowerButton.TOGGLE_SOUND.equals(buttonType)) {
-            SoundButton.getInstance().setupButton(position);
-        } else if(PowerButton.TOGGLE_SYNC.equals(buttonType)) {
-            SyncButton.getInstance().setupButton(position);
-        } else if(PowerButton.TOGGLE_WIFIAP.equals(buttonType)) {
-            WifiApButton.getInstance().setupButton(position);
-        } else if(PowerButton.TOGGLE_SCREENTIMEOUT.equals(buttonType)) {
-            ScreenTimeoutButton.getInstance().setupButton(position);
-        } else if(PowerButton.TOGGLE_MOBILEDATA.equals(buttonType)) {
-            MobileDataButton.getInstance().setupButton(position);
-        } else if(PowerButton.TOGGLE_LOCKSCREEN.equals(buttonType)) {
-            LockScreenButton.getInstance().setupButton(position);
-        } else if(PowerButton.TOGGLE_NETWORKMODE.equals(buttonType)) {
-            NetworkModeButton.getInstance().setupButton(position);
-        } else if(PowerButton.TOGGLE_AUTOROTATE.equals(buttonType)) {
-            AutoRotateButton.getInstance().setupButton(position);
-        } else if(PowerButton.TOGGLE_AIRPLANE.equals(buttonType)) {
-            AirplaneButton.getInstance().setupButton(position);
-        }
-
-    }
-
-    private void clearWidget() {
-        for(int posi = 0; posi < 6; posi++) {
-            LinearLayout layout = (LinearLayout)mExpandedView.findViewById(PowerButton.getLayoutID(posi + 1));
-            layout.setVisibility(View.GONE);
-            layout.setTag("");
-        }
-        WifiButton.getInstance().setupButton(0);
-        GPSButton.getInstance().setupButton(0);
-        BluetoothButton.getInstance().setupButton(0);
-        BrightnessButton.getInstance().setupButton(0);
-        SoundButton.getInstance().setupButton(0);
-        SyncButton.getInstance().setupButton(0);
-        WifiApButton.getInstance().setupButton(0);
-        ScreenTimeoutButton.getInstance().setupButton(0);
-        MobileDataButton.getInstance().setupButton(0);
-        LockScreenButton.getInstance().setupButton(0);
-        NetworkModeButton.getInstance().setupButton(0);
-        AutoRotateButton.getInstance().setupButton(0);
-        AirplaneButton.getInstance().setupButton(0);
-    }
-
-    private void updateStates() {
-        GPSButton.getInstance().updateState(mContext);
-        WifiButton.getInstance().updateState(mContext);
-        BluetoothButton.getInstance().updateState(mContext);
-        BrightnessButton.getInstance().updateState(mContext);
-        SoundButton.getInstance().updateState(mContext);
-        SyncButton.getInstance().updateState(mContext);
-        WifiApButton.getInstance().updateState(mContext);
-        ScreenTimeoutButton.getInstance().updateState(mContext);
-        MobileDataButton.getInstance().updateState(mContext);
-        LockScreenButton.getInstance().updateState(mContext);
-        NetworkModeButton.getInstance().updateState(mContext);
-        AutoRotateButton.getInstance().updateState(mContext);
-        AirplaneButton.getInstance().updateState(mContext);
-    }
-    private void updateViews() {
-        GPSButton.getInstance().updateView(mContext, mExpandedView);
-        WifiButton.getInstance().updateView(mContext, mExpandedView);
-        BluetoothButton.getInstance().updateView(mContext, mExpandedView);
-        BrightnessButton.getInstance().updateView(mContext, mExpandedView);
-        SoundButton.getInstance().updateView(mContext, mExpandedView);
-        SyncButton.getInstance().updateView(mContext, mExpandedView);
-        WifiApButton.getInstance().updateView(mContext, mExpandedView);
-        ScreenTimeoutButton.getInstance().updateView(mContext, mExpandedView);
-        MobileDataButton.getInstance().updateView(mContext, mExpandedView);
-        LockScreenButton.getInstance().updateView(mContext, mExpandedView);
-        NetworkModeButton.getInstance().updateView(mContext, mExpandedView);
-        AutoRotateButton.getInstance().updateView(mContext, mExpandedView);
-        AirplaneButton.getInstance().updateView(mContext, mExpandedView);
-    }
-
-    private void updateWidget() {
-        updateStates();
-        updateViews();
-    }
-
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -2204,63 +2056,67 @@ public class StatusBarService extends IStatusBar.Stub
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.COLOR_DATE),
-                         false, this);
+                            false, this);
 
             resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.COLOR_NOTIFICATION_NONE),
-                         false, this);
+                            false, this);
 
             resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.COLOR_NOTIFICATION_LATEST),
-                         false, this);
+                            false, this);
 
             resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.COLOR_NOTIFICATION_ONGOING),
-                         false, this);
+                            false, this);
 
             resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.COLOR_LABEL_SPN),
-                         false, this);
+                            false, this);
 
             resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.COLOR_LABEL_PLMN),
-                         false, this);
+                            false, this);
 
             resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.COLOR_NOTIFICATION_CLEAR_BUTTON),
-                         false, this);
+                            false, this);
 
             resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.COLOR_NOTIFICATION_TICKER_TEXT),
-                         false, this);
+                            false, this);
 
             resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.DISPLAY_STATUS_BAR_CLOCK),
-                         false, this);
+                            false, this);
 
             resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.DISPLAY_BATTERY_PERCENTAGE),
-                         false, this);
+                            false, this);
 
             resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.DISPLAY_GALAXY_S_WIDGET),
-                         false, this);
+                            false, this);
 
             resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS_MODE),
-                         false, this);
+                            false, this);
 
             resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS),
-                         false, this);
+                            false, this);
 
             resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.AIRPLANE_MODE_ON),
-                         false, this);
+                            false, this);
 
             resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.GALAXY_S_WIDGET_BUTTONS),
-                         false, this);
+                            false, this);
+
+            resolver.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.GALAXY_S_WIDGET_COLOR),
+                            false, this);
         }
 
         @Override
@@ -2276,14 +2132,12 @@ public class StatusBarService extends IStatusBar.Stub
                 mGalaxySPowerWidget.setupWidget();
             }
 
-            boolean powerWidget = Settings.System.getInt(mContext.getContentResolver(),
-                       Settings.System.DISPLAY_GALAXY_S_WIDGET, 0) == 1;
-            if(!powerWidget) {
-                mExpandedView.findViewById(R.id.exp_power_stat).
-                    setVisibility(View.GONE);
+            boolean displayPowerWidget = Settings.System.getInt(mContext.getContentResolver(),
+                       Settings.System.DISPLAY_GALAXY_S_WIDGET, 1) == 1;
+            if(!displayPowerWidget) {
+                mGalaxySPowerWidget.setVisibility(View.GONE);
             } else {
-                mExpandedView.findViewById(R.id.exp_power_stat).
-                    setVisibility(View.VISIBLE);
+                mGalaxySPowerWidget.setVisibility(View.VISIBLE);
             }
             mGalaxySWidget.updateWidget();
         }

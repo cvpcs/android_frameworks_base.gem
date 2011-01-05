@@ -9,16 +9,26 @@ import android.net.ConnectivityManager;
 
 public class SyncButton extends PowerButton {
 
-    static SyncButton ownButton=null;
+    private static SyncButton OWN_BUTTON = null;
 
-    /**
-     * Toggle auto-sync
-     * 
-     * @param context
-     */
-    public void toggleState(Context context) {
-        ConnectivityManager connManager = (ConnectivityManager) context
-        .getSystemService(Context.CONNECTIVITY_SERVICE);
+    public SyncButton() { mType = PowerButton.BUTTON_SYNC; }
+
+    @Override
+    public void updateState() {
+        if (getSync(mView.getContext())) {
+            mIcon = R.drawable.stat_sync_on;
+            mState = PowerButton.STATE_ENABLED;
+        } else {
+            mIcon = R.drawable.stat_sync_off;
+            mState = PowerButton.STATE_DISABLED;
+        }
+    }
+
+    @Override
+    protected void toggleState() {
+        Context context = mView.getContext();
+        ConnectivityManager connManager = (ConnectivityManager)context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
         boolean backgroundData = getBackgroundDataState(context);
         boolean sync = ContentResolver.getMasterSyncAutomatically();
 
@@ -47,57 +57,21 @@ public class SyncButton extends PowerButton {
         }
     }
 
-    public void toggleState(Context context, int newState) {
-        if(getSync(context) && newState==PowerButton.STATE_DISABLED) {
-            toggleState(context);
-        } else if(!getSync(context) && newState==PowerButton.STATE_ENABLED) {
-            toggleState(context);
-        }
-    }
-
-    /**
-     * Gets the state of background data.
-     * 
-     * @param context
-     * @return true if enabled
-     */
     private static boolean getBackgroundDataState(Context context) {
         ConnectivityManager connManager = (ConnectivityManager) context
         .getSystemService(Context.CONNECTIVITY_SERVICE);
         return connManager.getBackgroundDataSetting();
     }
 
-    /**
-     * Gets the state of auto-sync.
-     * 
-     * @param context
-     * @return true if enabled
-     */
-    private static boolean getSync(Context context) {
+    private static boolean getSyncState(Context context) {
         boolean backgroundData = getBackgroundDataState(context);
         boolean sync = ContentResolver.getMasterSyncAutomatically();
         return backgroundData && sync;
     }
 
-
-
-    public void updateState(Context context) {
-        if (getSync(context)) {
-            currentIcon = R.drawable.stat_sync_on;
-            currentState = PowerButton.STATE_ENABLED;
-        } else {
-            currentIcon = R.drawable.stat_sync_off;
-            currentState = PowerButton.STATE_DISABLED;
-        }
-    }
-
     public static SyncButton getInstance() {
-        if (ownButton == null) ownButton = new SyncButton();
-        return ownButton;
-    }
-
-    @Override
-    void initButton(int poisition) {
+        if (OWN_BUTTON == null) OWN_BUTTON = new SyncButton();
+        return OWN_BUTTON;
     }
 
 }

@@ -20,59 +20,33 @@ import android.content.Context;
 import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 
 import com.android.internal.R;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class GalaxySWidget extends LinearLayout {
     private static final String TAG = "GalaxySWidget";
 
     public static final String BUTTON_DELIMITER = "|";
 
-    public static final String BUTTON_WIFI = "wifi";
-    public static final String BUTTON_GPS = "gps";
-    public static final String BUTTON_BLUETOOTH = "bluetooth";
-    public static final String BUTTON_BRIGHTNESS = "brightness";
-    public static final String BUTTON_SOUND = "sound";
-    public static final String BUTTON_SYNC = "sync";
-    public static final String BUTTON_WIFIAP = "wifiap";
-    public static final String BUTTON_SCREENTIMEOUT = "screentimeout";
-    public static final String BUTTON_MOBILEDATA = "mobiledata";
-    public static final String BUTTON_LOCKSCREEN = "lockscreen";
-    public static final String BUTTON_NETWORKMODE = "networkmode";
-    public static final String BUTTON_AUTOROTATE = "autorotate";
-    public static final String BUTTON_AIRPLANE = "airplane";
-
-    private static final ArrayList<String> BUTTONS = new ArrayList<String>();
-    static {
-        BUTTONS.add(BUTTON_WIFI);
-        BUTTONS.add(BUTTON_GPS);
-        BUTTONS.add(BUTTON_BLUETOOTH);
-        BUTTONS.add(BUTTON_BRIGHTNESS);
-        BUTTONS.add(BUTTON_SOUND);
-        BUTTONS.add(BUTTON_SYNC);
-        BUTTONS.add(BUTTON_WIFIAP);
-        BUTTONS.add(BUTTON_SCREENTIMEOUT);
-        BUTTONS.add(BUTTON_MOBILEDATA);
-        BUTTONS.add(BUTTON_LOCKSCREEN);
-        BUTTONS.add(BUTTON_NETWORKMODE);
-        BUTTONS.add(BUTTON_AUTOROTATE);
-        BUTTONS.add(BUTTON_AIRPLANE);
-    }
-
-    private static final String BUTTONS_DEFAULT = BUTTON_WIFI
-                             + BUTTON_DELIMITER + BUTTON_BLUETOOTH
-                             + BUTTON_DELIMITER + BUTTON_GPS
-                             + BUTTON_DELIMITER + BUTTON_SOUND;
+    private static final String BUTTONS_DEFAULT = PowerButton.BUTTON_WIFI
+                             + BUTTON_DELIMITER + PowerButton.BUTTON_BLUETOOTH
+                             + BUTTON_DELIMITER + PowerButton.BUTTON_GPS
+                             + BUTTON_DELIMITER + PowerButton.BUTTON_SOUND;
 
     private Context mContext;
+    private LayoutInflater mInflater;
+    private HashMap<String, PowerButton> mButtons;
 
     public GalaxySWidgetButton(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         mContext = context;
+        mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
@@ -83,7 +57,19 @@ public class GalaxySWidget extends LinearLayout {
         setupWidget();
     }
 
-    public setupWidget() {
+    public void setupWidget() {
+        Log.i(TAG, "Clearing any old widget stuffs");
+        // remove all views from the layout
+        removeAllViews();
+
+        // clear the button instances
+        for(PowerButton button : mButtons.values()) {
+            button.setupButton(null);
+        }
+
+        // clear our array of buttons
+        mButtons.clear();
+
         Log.i(TAG, "Setting up widget");
 
         String buttons = Settings.System.getString(mContext.getContentResolver(), Settings.System.GALAXY_S_WIDGET_BUTTONS);
@@ -93,14 +79,27 @@ public class GalaxySWidget extends LinearLayout {
         }
         Log.i(TAG, "Button list: " + buttons);
 
-        ArrayList<String> list = new ArrayList<String>();
+        mButtons = new HashMap<String, PowerButton>();
         for(String button : buttons.split("\\|")) {
-            if(BUTTONS.contains(button) && !list.contains(button)) {
-                list.add(button);
+            PowerButton pb = PowerButton.getButtonInstance(button);
+
+            if(pb != null && !list.contains(button)) {
+                Log.i(TAG, "Setting up button: " + button);
+                View buttonView = mInflater.inflate(R.layout.galaxy_s_widget_button, this);
+                // add our view to the layout
+                addView(buttonView);
+                // set up our button around it
+                pb.setupButton(buttonView);
+                // store this for safe keeping
+                mButtons.put(button, pb);
             }
         }
     }
 
-    public clearWidget() {
+    public void updateWidget() {
+        for(PowerButton button : mButtons.values()) {
+            button.updateState();
+            button.updateView();
+        }
     }
 }

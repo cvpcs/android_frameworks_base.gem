@@ -12,80 +12,69 @@ import android.widget.Toast;
 
 public class LockScreenButton extends PowerButton {
 
-    static Boolean lockScreen = null;
+    private static Boolean LOCK_SCREEN_STATE = null;
+    private static LockScreenButton OWN_BUTTON = null;
 
-    public static final String LOCK_SCREEN = "lockScreen";
-    static LockScreenButton ownButton = null;
-    KeyguardLock lock;
+    private KeyguardLock mLock = null;
 
-    private KeyguardLock getLock(Context context) {
-        if (lock == null) {
-            KeyguardManager keyguardManager = (KeyguardManager)context.
-                    getSystemService(Activity.KEYGUARD_SERVICE);
-            lock = keyguardManager.newKeyguardLock(Context.KEYGUARD_SERVICE);
-        }
-        return lock;
-    }
+    public LockScreenButton() { mType = PowerButton.BUTTON_LOCKSCREEN; }
 
-    public void updateState(Context context) {
-        getState(context);
-        if (lockScreen == null) {
-            currentIcon = R.drawable.stat_lock_screen_off;
-            currentState = PowerButton.STATE_INTERMEDIATE;
-        } else if (lockScreen) {
-            currentIcon = R.drawable.stat_lock_screen_on;
-            currentState = PowerButton.STATE_ENABLED;
+    @Override
+    public void updateState() {
+        getState(mView.getContext());
+        if (LOCK_SCREEN_STATE == null) {
+            mIcon = R.drawable.stat_lock_screen_off;
+            mState = PowerButton.STATE_INTERMEDIATE;
+        } else if (LOCK_SCREEN_STATE) {
+            mIcon = R.drawable.stat_lock_screen_on;
+            mState = PowerButton.STATE_ENABLED;
         } else {
-            currentIcon = R.drawable.stat_lock_screen_off;
-            currentState = PowerButton.STATE_DISABLED;
+            mIcon = R.drawable.stat_lock_screen_off;
+            mState = PowerButton.STATE_DISABLED;
         }
     }
 
-    /**
-     * Toggles the state of GPS.
-     *
-     * @param context
-     */
-    public void toggleState(Context context) {
-        getState(context);
-        if(lockScreen == null) {
+    @Override
+    protected void toggleState() {
+        Context context = mView.getContext();
+        getState();
+        if(LOCK_SCREEN_STATE == null) {
             Toast msg = Toast.makeText(context, "Not yet initialized", Toast.LENGTH_LONG);
             msg.setGravity(Gravity.CENTER, msg.getXOffset() / 2, msg.getYOffset() / 2);
             msg.show();
         } else {
             getLock(context);
-            if (lockScreen && lock != null) {
-                lock.disableKeyguard();
-                lockScreen = false;
-            } else if (lock != null) {
-                lock.reenableKeyguard();
-                lockScreen = true;
+            if (mLock != null) {
+                if (LOCK_SCREEN_STATE) {
+                  mLock.disableKeyguard();
+                  LOCK_SCREEN_STATE = false;
+                } else {
+                  mLock.reenableKeyguard();
+                  LOCK_SCREEN_STATE = true;
+                }
             }
         }
     }
 
-    /**
-     * Gets the state of GPS location.
-     *
-     * @param context
-     * @return true if enabled.
-     */
-    private static boolean getState(Context context) {
-        if (lockScreen == null) {
-            lockScreen = true;
-        }
-        return lockScreen;
-    }
-
-
     public static LockScreenButton getInstance() {
-        if (ownButton==null) ownButton = new LockScreenButton();
-
-        return ownButton;
+        if (OWN_BUTTON==null) OWN_BUTTON = new LockScreenButton();
+        return OWN_BUTTON;
     }
 
-    @Override
-    void initButton(int position) {
+    private KeyguardLock getLock(Context context) {
+        if (mLock == null) {
+            KeyguardManager keyguardManager = (KeyguardManager)context.
+                    getSystemService(Activity.KEYGUARD_SERVICE);
+            mLock = keyguardManager.newKeyguardLock(Context.KEYGUARD_SERVICE);
+        }
+        return mLock;
+    }
+
+    private static boolean getState() {
+        if (LOCK_SCREEN_STATE == null) {
+            LOCK_SCREEN_STATE = true;
+        }
+        return LOCK_SCREEN_STATE;
     }
 }
 

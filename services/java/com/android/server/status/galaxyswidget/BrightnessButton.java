@@ -6,6 +6,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.IPowerManager;
+import android.os.Power;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.provider.Settings;
@@ -17,152 +18,53 @@ public class BrightnessButton extends PowerButton {
      * Minimum and maximum brightnesses. Don't go to 0 since that makes the
      * display unusable
      */
-    private static final int MINIMUM_BACKLIGHT = android.os.Power.BRIGHTNESS_DIM + 10;
-    private static final int MAXIMUM_BACKLIGHT = android.os.Power.BRIGHTNESS_ON;
-    private static int DEFAULT_BACKLIGHT = (int) (android.os.Power.BRIGHTNESS_ON * 0.4f);
-
-    private static int LOW_BACKLIGHT = (int) (android.os.Power.BRIGHTNESS_ON * 0.25f);
-    private static int MID_BACKLIGHT = (int) (android.os.Power.BRIGHTNESS_ON * 0.5f);
-    private static int HIGH_BACKLIGHT = (int) (android.os.Power.BRIGHTNESS_ON * 0.75f);
-
-    private static final int AUTO_BACKLIGHT = -1;
-
-    private static final int MODE_AUTO_MIN_DEF_MAX=0;
-    private static final int MODE_AUTO_MIN_LOW_MID_HIGH_MAX=1;
-    private static final int MODE_AUTO_LOW_MAX=2;
-    private static final int MODE_MIN_MAX=3;
-
-    private static final int DEFAULT_SETTING = 0;
-
-    private static Boolean supportsAutomaticMode=null;
-
-    static BrightnessButton ownButton=null;
-
-    private static int currentMode;
-
-
-    /*
-     * 
-Auto_Min_Low_Max
-Auto_Min . Max
-Auto. Min . Low High. Max
-Auto_Low / High
-Auto_Low / High / Max
-
-
-Min / Max
-Min Low Max
-Min Low High Max
-Low High
-Low High Max
-
-
-     */
-
-    public static int getMinBacklight(Context context) {
-        if (Settings.System.getInt(context.getContentResolver(),
-             Settings.System.LIGHT_SENSOR_CUSTOM, 0) != 0) {
-               return Settings.System.getInt(context.getContentResolver(),
-                        Settings.System.LIGHT_SCREEN_DIM, MINIMUM_BACKLIGHT);
-        } else {
-            return MINIMUM_BACKLIGHT;
-        }
-    }
-
-
-    private static boolean isAutomaticModeSupported(Context context) {
-        if (supportsAutomaticMode == null) {
-            if (context
-                    .getResources()
-                    .getBoolean(
-                            com.android.internal.R.bool.config_automatic_brightness_available)) {
-                supportsAutomaticMode=true;
-            } else {
-                supportsAutomaticMode=false;
-            }
-        }
-        return supportsAutomaticMode;
-    }
-
+    private static final int MIN_BACKLIGHT = Power.BRIGHTNESS_DIM + 10;
+    private static final int MAX_BACKLIGHT = Power.BRIGHTNESS_ON;
     /**
-     * Gets state of brightness mode.
-     * 
-     * @param context
-     * @return true if auto brightness is on.
+     * Mid-range brightness values + thresholds
      */
-    private static boolean isBrightnessSetToAutomatic(Context context) {
-        try {
-            IPowerManager power = IPowerManager.Stub.asInterface(ServiceManager
-                    .getService("power"));
-            if (power != null) {
-                int brightnessMode = Settings.System.getInt(context
-                        .getContentResolver(),
-                        Settings.System.SCREEN_BRIGHTNESS_MODE);
-                return brightnessMode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC;
-            }
-        } catch (Exception e) {
-            Log.d("PowerWidget", "getBrightnessMode: " + e);
-        }
-        return false;
-    }
+    private static final int[] BACKLIGHT_MIDLEVELS = new int[] {
+            (int) (Power.BRIGHTNESS_ON * 0.25f),
+            (int) (Power.BRIGHTNESS_ON * 0.40f),
+            (int) (Power.BRIGHTNESS_ON * 0.50f),
+            (int) (Power.BRIGHTNESS_ON * 0.75f)};
 
+    private static Boolean SUPPORTS_AUTO_BACKLIGHT=null;
+    private static BrightnessButton OWN_BUTTON = null;
 
+    public BrightnessButton() { mType = PowerButton.BUTTON_BRIGHTNESS; }
 
-    private int getNextBrightnessValue(Context context) {
-        int brightness = Settings.System.getInt(context.getContentResolver(),
-                Settings.System.SCREEN_BRIGHTNESS,0);
-
-        if (isAutomaticModeSupported(context) && isBrightnessSetToAutomatic(context)) {
-            if (currentMode == MODE_AUTO_LOW_MAX) {
-                return LOW_BACKLIGHT;
-            } else {
-                return getMinBacklight(context);
-            }
-        } else if (brightness < LOW_BACKLIGHT) {
-            if (currentMode == MODE_AUTO_LOW_MAX) {
-                return LOW_BACKLIGHT;
-            } else if (currentMode == MODE_MIN_MAX) {
-                return MAXIMUM_BACKLIGHT;
-            } else {
-                return DEFAULT_BACKLIGHT;
-            }
-        } else if (brightness < DEFAULT_BACKLIGHT) {
-            if (currentMode == MODE_AUTO_MIN_DEF_MAX) {
-                return DEFAULT_BACKLIGHT;
-            } else if (currentMode == MODE_AUTO_LOW_MAX || currentMode == MODE_MIN_MAX) {
-                return MAXIMUM_BACKLIGHT;
-            } else {
-                return MID_BACKLIGHT;
-            }
-        } else if (brightness < MID_BACKLIGHT) {
-            if (currentMode == MODE_AUTO_MIN_LOW_MID_HIGH_MAX) {
-                return MID_BACKLIGHT;
-            } else {
-                return MAXIMUM_BACKLIGHT;
-            }
-        } else if (brightness < HIGH_BACKLIGHT) {
-            if (currentMode == MODE_AUTO_MIN_LOW_MID_HIGH_MAX) {
-                return HIGH_BACKLIGHT;
-            } else {
-                return MAXIMUM_BACKLIGHT;
-            }
-        } else if (brightness < MAXIMUM_BACKLIGHT) {
-            return MAXIMUM_BACKLIGHT;
-        } else if (isAutomaticModeSupported(context) && currentMode!=MODE_MIN_MAX) {
-            return AUTO_BACKLIGHT;
-        } else if(currentMode == MODE_AUTO_LOW_MAX){
-            return LOW_BACKLIGHT;
+    @Override
+    public void updateState() {
+        Context context = mView.getContext();
+        if (isBrightnessSetToAutomatic(context)) {
+            mIcon = R.drawable.stat_brightness_auto;
+            mState = PowerButton.STATE_ENABLED;
         } else {
-            return getMinBacklight(context);
+            switch(getBrightnessState(context)) {
+            case PowerButton.STATE_ENABLED:
+                mIcon = R.drawable.stat_brightness_on;
+                mState = PowerButton.STATE_ENABLED;
+                break;
+            case PowerButton.STATE_TURNING_ON:
+                mIcon = R.drawable.stat_brightness_on;
+                mState = PowerButton.STATE_INTERMEDIATE;
+                break;
+            case PowerButton.STATE_TURNING_OFF:
+                mIcon = R.drawable.stat_brightness_off;
+                mState = PowerButton.STATE_INTERMEDIATE;
+                break;
+            default:
+                mIcon = R.drawable.stat_brightness_off;
+                mState = PowerButton.STATE_DISABLED;
+                break;
+            }
         }
     }
 
-    /**
-     * Increases or decreases the brightness.
-     *
-     * @param context
-     */
-    public void toggleState(Context context) {
+    @Override
+    protected void toggleState() {
+        Context context = mView.getContext();
         try {
             IPowerManager power = IPowerManager.Stub.asInterface(ServiceManager
                     .getService("power"));
@@ -189,64 +91,85 @@ Low High Max
         }
     }
 
-
     public static BrightnessButton getInstance() {
-        if (ownButton == null) ownButton = new BrightnessButton();
-
-        return ownButton;
+        if (OWN_BUTTON == null) OWN_BUTTON = new BrightnessButton();
+        return OWN_BUTTON;
     }
 
-    @Override
-    void initButton(int position) {
-    }
-
-    @Override
-    public void updateState(Context context) {
-        currentMode = Settings.System.getInt(context.getContentResolver(),
-                Settings.System.EXPANDED_BRIGHTNESS_MODE, DEFAULT_SETTING);
-
-        if (isBrightnessSetToAutomatic(context)) {
-            currentIcon = R.drawable.stat_brightness_auto;
-            currentState = PowerButton.STATE_ENABLED;
-        } else if (getBrightnessState(context) == PowerButton.STATE_ENABLED) {
-            currentIcon = R.drawable.stat_brightness_on;
-            currentState = PowerButton.STATE_ENABLED;
-        } else if (getBrightnessState(context) == PowerButton.STATE_TURNING_ON) {
-            currentIcon = R.drawable.stat_brightness_on;
-            currentState = PowerButton.STATE_INTERMEDIATE;
-        } else if (getBrightnessState(context) == PowerButton.STATE_TURNING_OFF) {
-            currentIcon = R.drawable.stat_brightness_off;
-            currentState = PowerButton.STATE_INTERMEDIATE;
-        } else {
-            currentIcon = R.drawable.stat_brightness_off;
-            currentState = PowerButton.STATE_DISABLED;
-        }
-    }
-
-    private int getBrightnessState(Context context) {
+    private static int getNextBrightnessValue(Context context) {
+        Context context = mView.getContext();
         int brightness = Settings.System.getInt(context.getContentResolver(),
                 Settings.System.SCREEN_BRIGHTNESS,0);
 
-        if (brightness < LOW_BACKLIGHT) {
-            return PowerButton.STATE_DISABLED;
-        } else if (brightness < DEFAULT_BACKLIGHT) {
-            return PowerButton.STATE_DISABLED;
-        } else if (brightness < MID_BACKLIGHT) {
-            if (currentMode == MODE_AUTO_MIN_LOW_MID_HIGH_MAX) {
-                return PowerButton.STATE_DISABLED;
-            } else {
-                return PowerButton.STATE_TURNING_OFF;
+        // take care of some default loops
+        if(isAutomaticModeSupported(context)) {
+            if(isBrightnessSetToAutomatic(context)) {
+                // if we're in auto mode, go to min
+                return MIN_BACKLIGHT;
+            } else if(brightness >= MAX_BACKLIGHT) {
+                // if we're at max and auto is supported, go to it
+                return AUTO_BACKLIGHT;
             }
-        } else if (brightness < HIGH_BACKLIGHT) {
-            if (currentMode == MODE_AUTO_MIN_LOW_MID_HIGH_MAX) {
-                return PowerButton.STATE_TURNING_OFF;
-            } else {
-                return PowerButton.STATE_TURNING_ON;
-            }
-        } else if (brightness < MAXIMUM_BACKLIGHT) {
-            return PowerButton.STATE_TURNING_ON;
         } else {
-            return PowerButton.STATE_ENABLED;
+            if(brightness >= MAX_BACKLIGHT) {
+                // if we're at max and auto isn't supported, go to min
+                return MIN_BACKLIGHT;
+            }
         }
+
+        // we're either in mid-range or at minimum, so cycle up
+        for(int level : BACKLIGHT_MIDLEVELS) {
+            // is this brightness greater than the last?
+            if(brightness < level) {
+                // yes it is so return it
+                return level;
+            }
+        }
+
+        // if we got here, then we must be at the top of the mid-range, so return max
+        return MAX_BACKLIGHT;
+    }
+
+    private static int getBrightnessState(Context context) {
+        int brightness = Settings.System.getInt(context.getContentResolver(),
+                Settings.System.SCREEN_BRIGHTNESS,0);
+
+        if (brightness <= MIN_BACKLIGHT) {
+            return PowerButton.STATE_DISABLED;
+        } else if (brightness >= MAX_BACKLIGHT) {
+            return PowerButton.STATE_ENABLED;
+        } else {
+            return PowerButton.STATE_TURNING_ON;
+        }
+    }
+
+    private static boolean isAutomaticModeSupported(Context context) {
+        if (SUPPORTS_AUTO_BACKLIGHT == null) {
+            if (context.getResources().getBoolean(
+                    com.android.internal.R.bool.config_automatic_brightness_available)) {
+                SUPPORTS_AUTO_BACKLIGHT=true;
+            } else {
+                SUPPORTS_AUTO_BACKLIGHT=false;
+            }
+        }
+
+        return SUPPORTS_AUTO_BACKLIGHT;
+    }
+
+    private static boolean isBrightnessSetToAutomatic(Context context) {
+        try {
+            IPowerManager power = IPowerManager.Stub.asInterface(ServiceManager
+                    .getService("power"));
+            if (power != null) {
+                int brightnessMode = Settings.System.getInt(context
+                        .getContentResolver(),
+                        Settings.System.SCREEN_BRIGHTNESS_MODE);
+                return brightnessMode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC;
+            }
+        } catch (Exception e) {
+            Log.d("PowerWidget", "getBrightnessMode: " + e);
+        }
+
+        return false;
     }
 }

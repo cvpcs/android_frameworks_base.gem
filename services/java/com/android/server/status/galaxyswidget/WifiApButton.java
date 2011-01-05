@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class WifiApButton extends PowerButton {
 
-    static WifiApButton ownButton = null;
+    private static WifiApButton OWN_BUTTON = null;
 
 
     private static final StateTracker sWifiApState = new WifiApStateTracker();
@@ -98,17 +98,17 @@ public class WifiApButton extends PowerButton {
         }
     }
 
+    public WifiApButton() { mType = PowerButton.BUTTON_WIFIAP; }
 
-
-    public void updateState(Context context) {
-
-        currentState = sWifiApState.getTriState(context);
-        switch (currentState) {
+    @Override
+    public void updateState() {
+        mState = sWifiApState.getTriState(mView.getContext());
+        switch (mState) {
         case PowerButton.STATE_DISABLED:
-            currentIcon = R.drawable.stat_wifi_ap_off;
+            mIcon = R.drawable.stat_wifi_ap_off;
             break;
         case PowerButton.STATE_ENABLED:
-            currentIcon = R.drawable.stat_wifi_ap_on;
+            mIcon = R.drawable.stat_wifi_ap_on;
             break;
         case PowerButton.STATE_INTERMEDIATE:
             // In the transitional state, the bottom green bar
@@ -117,34 +117,26 @@ public class WifiApButton extends PowerButton {
             // user's intent. This is much easier to see in
             // sunlight.
             if (sWifiApState.isTurningOn()) {
-                currentIcon = R.drawable.stat_wifi_ap_on;
+                mIcon = R.drawable.stat_wifi_ap_on;
             } else {
-                currentIcon = R.drawable.stat_wifi_ap_off;
+                mIcon = R.drawable.stat_wifi_ap_off;
             }
             break;
         }
     }
 
+    @Override
+    public void toggleState() {
+        sWifiApState.toggleState(mView.getContext());
+    }
 
     public void onReceive(Context context, Intent intent) {
         sWifiApState.onActualStateChange(context, intent);
     }
 
-
-    public void toggleState(Context context) {
-        sWifiApState.toggleState(context);
-    }
-
-
     public static WifiApButton getInstance() {
-        if (ownButton == null) {
-            ownButton = new WifiApButton();
-        }
-
-        return ownButton;
+        if (OWN_BUTTON == null) OWN_BUTTON = new WifiApButton();
+        return OWN_BUTTON;
     }
 
-    @Override
-    void initButton(int position) {
-    }
 }

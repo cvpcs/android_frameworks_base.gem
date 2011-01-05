@@ -9,24 +9,24 @@ import android.provider.Settings;
 
 public class AirplaneButton extends PowerButton {
 
-    static AirplaneButton ownButton=null;
+    private static AirplaneButton OWN_BUTTON = null;
 
-    public void updateState(Context context) {
-        if (getState(context)) {
-            currentIcon = R.drawable.stat_airplane_on;
-            currentState = PowerButton.STATE_ENABLED;
+    public AirplaneButton() { mType = PowerButton.BUTTON_AIRPLANE; }
+
+    @Override
+    public void updateState() {
+        if (getState(mView.getContext())) {
+            mIcon = R.drawable.stat_airplane_on;
+            mState = PowerButton.STATE_ENABLED;
         } else {
-            currentIcon = R.drawable.stat_airplane_off;
-            currentState = PowerButton.STATE_DISABLED;
+            mIcon = R.drawable.stat_airplane_off;
+            mState = PowerButton.STATE_DISABLED;
         }
     }
 
-    /**
-     * Toggles the state of Airplane
-     *
-     * @param context
-     */
-    public void toggleState(Context context) {
+    @Override
+    protected void toggleState() {
+        Context context = mView.getContext();
         boolean state = getState(context);
         Settings.System.putInt(context.getContentResolver(),
             Settings.System.AIRPLANE_MODE_ON, state ? 0 : 1);
@@ -36,25 +36,14 @@ public class AirplaneButton extends PowerButton {
         context.sendBroadcast(intent);
     }
 
-    /**
-     * Gets the state of Airplane.
-     *
-     * @param context
-     * @return true if enabled.
-     */
+    public static AirplaneButton getInstance() {
+        if (OWN_BUTTON==null) OWN_BUTTON = new AirplaneButton();
+        return OWN_BUTTON;
+    }
+
     private static boolean getState(Context context) {
         return Settings.System.getInt(context.getContentResolver(),
                  Settings.System.AIRPLANE_MODE_ON,0) == 1;
-    }
-
-
-    public static AirplaneButton getInstance() {
-        if (ownButton==null) ownButton = new AirplaneButton();
-        return ownButton;
-    }
-
-    @Override
-    void initButton(int poisition) {
     }
 }
 
