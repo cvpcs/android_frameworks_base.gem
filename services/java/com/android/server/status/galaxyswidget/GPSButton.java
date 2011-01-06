@@ -11,7 +11,7 @@ public class GPSButton extends PowerButton {
 
     private static GPSButton OWN_BUTTON = null;
 
-    public GPSButton() { mType = PowerButton.BUTTON_GPS; }
+    public GPSButton() { mType = BUTTON_GPS; }
 
     @Override
     public void updateState() {

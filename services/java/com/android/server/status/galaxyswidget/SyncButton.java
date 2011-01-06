@@ -11,16 +11,16 @@ public class SyncButton extends PowerButton {
 
     private static SyncButton OWN_BUTTON = null;
 
-    public SyncButton() { mType = PowerButton.BUTTON_SYNC; }
+    public SyncButton() { mType = BUTTON_SYNC; }
 
     @Override
     public void updateState() {
         if (getSyncState(mView.getContext())) {
             mIcon = R.drawable.stat_sync_on;
-            mState = PowerButton.STATE_ENABLED;
+            mState = STATE_ENABLED;
         } else {
             mIcon = R.drawable.stat_sync_off;
-            mState = PowerButton.STATE_DISABLED;
+            mState = STATE_DISABLED;
         }
     }
 

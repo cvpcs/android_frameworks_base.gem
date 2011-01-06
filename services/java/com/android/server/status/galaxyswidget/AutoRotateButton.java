@@ -9,16 +9,16 @@ public class AutoRotateButton extends PowerButton {
 
     private static AutoRotateButton OWN_BUTTON = null;
 
-    public AutoRotateButton() { mType = PowerButton.BUTTON_AUTOROTATE; }
+    public AutoRotateButton() { mType = BUTTON_AUTOROTATE; }
 
     @Override
     public void updateState() {
         if (getOrientationState(mView.getContext()) == 1) {
             mIcon = R.drawable.stat_orientation_on;
-            mState = PowerButton.STATE_ENABLED;
+            mState = STATE_ENABLED;
         } else {
             mIcon = R.drawable.stat_orientation_off;
-            mState = PowerButton.STATE_DISABLED;
+            mState = STATE_DISABLED;
         }
     }
 

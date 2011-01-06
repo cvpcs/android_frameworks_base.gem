@@ -21,7 +21,7 @@ public class BluetoothButton extends PowerButton {
         public int getActualState(Context context) {
             BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
             if (mBluetoothAdapter == null) {
-                return PowerButton.STATE_UNKNOWN; // On emulator?
+                return STATE_UNKNOWN; // On emulator?
             }
             return bluetoothStateToFiveState(mBluetoothAdapter
                     .getState());
@@ -66,32 +66,32 @@ public class BluetoothButton extends PowerButton {
         private static int bluetoothStateToFiveState(int bluetoothState) {
             switch (bluetoothState) {
             case BluetoothAdapter.STATE_OFF:
-                return PowerButton.STATE_DISABLED;
+                return STATE_DISABLED;
             case BluetoothAdapter.STATE_ON:
-                return PowerButton.STATE_ENABLED;
+                return STATE_ENABLED;
             case BluetoothAdapter.STATE_TURNING_ON:
-                return PowerButton.STATE_TURNING_ON;
+                return STATE_TURNING_ON;
             case BluetoothAdapter.STATE_TURNING_OFF:
-                return PowerButton.STATE_TURNING_OFF;
+                return STATE_TURNING_OFF;
             default:
-                return PowerButton.STATE_UNKNOWN;
+                return STATE_UNKNOWN;
             }
         }
     }
 
-    public BluetoothButton() { mType = PowerButton.BUTTON_BLUETOOTH; }
+    public BluetoothButton() { mType = BUTTON_BLUETOOTH; }
 
     @Override
     public void updateState() {
         mState = sBluetoothState.getTriState(mView.getContext());
         switch (mState) {
-        case PowerButton.STATE_DISABLED:
+        case STATE_DISABLED:
             mIcon = R.drawable.stat_bluetooth_off;
             break;
-        case PowerButton.STATE_ENABLED:
+        case STATE_ENABLED:
             mIcon = R.drawable.stat_bluetooth_on;
             break;
-        case PowerButton.STATE_INTERMEDIATE:
+        case STATE_INTERMEDIATE:
             // In the transitional state, the bottom green bar
             // shows the tri-state (on, off, transitioning), but
             // the top dark-gray-or-bright-white logo shows the

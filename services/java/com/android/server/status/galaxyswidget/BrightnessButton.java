@@ -46,31 +46,31 @@ public class BrightnessButton extends PowerButton {
         OBSERVED_URIS.add(Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS_MODE));
     }
 
-    public BrightnessButton() { mType = PowerButton.BUTTON_BRIGHTNESS; }
+    public BrightnessButton() { mType = BUTTON_BRIGHTNESS; }
 
     @Override
     public void updateState() {
         Context context = mView.getContext();
         if (isBrightnessSetToAutomatic(context)) {
             mIcon = R.drawable.stat_brightness_auto;
-            mState = PowerButton.STATE_ENABLED;
+            mState = STATE_ENABLED;
         } else {
             switch(getBrightnessState(context)) {
-            case PowerButton.STATE_ENABLED:
+            case STATE_ENABLED:
                 mIcon = R.drawable.stat_brightness_on;
-                mState = PowerButton.STATE_ENABLED;
+                mState = STATE_ENABLED;
                 break;
-            case PowerButton.STATE_TURNING_ON:
+            case STATE_TURNING_ON:
                 mIcon = R.drawable.stat_brightness_on;
-                mState = PowerButton.STATE_INTERMEDIATE;
+                mState = STATE_INTERMEDIATE;
                 break;
-            case PowerButton.STATE_TURNING_OFF:
+            case STATE_TURNING_OFF:
                 mIcon = R.drawable.stat_brightness_off;
-                mState = PowerButton.STATE_INTERMEDIATE;
+                mState = STATE_INTERMEDIATE;
                 break;
             default:
                 mIcon = R.drawable.stat_brightness_off;
-                mState = PowerButton.STATE_DISABLED;
+                mState = STATE_DISABLED;
                 break;
             }
         }
@@ -153,11 +153,11 @@ public class BrightnessButton extends PowerButton {
                 Settings.System.SCREEN_BRIGHTNESS,0);
 
         if (brightness <= MIN_BACKLIGHT) {
-            return PowerButton.STATE_DISABLED;
+            return STATE_DISABLED;
         } else if (brightness >= MAX_BACKLIGHT) {
-            return PowerButton.STATE_ENABLED;
+            return STATE_ENABLED;
         } else {
-            return PowerButton.STATE_TURNING_ON;
+            return STATE_TURNING_ON;
         }
     }
 

@@ -31,9 +31,9 @@ public class NetworkModeButton extends PowerButton{
 
     private static int NETWORK_MODE = NO_NETWORK_MODE_YET;
     private static int INTENDED_NETWORK_MODE = NO_NETWORK_MODE_YET;
-    private static int CURRENT_INTERNAL_STATE = PowerButton.STATE_INTERMEDIATE;
+    private static int CURRENT_INTERNAL_STATE = STATE_INTERMEDIATE;
 
-    public NetworkModeButton() { mType = PowerButton.BUTTON_NETWORKMODE; }
+    public NetworkModeButton() { mType = BUTTON_NETWORKMODE; }
 
     @Override
     public void updateState() {
@@ -42,23 +42,23 @@ public class NetworkModeButton extends PowerButton{
         mState = networkModeToState(context);
 
         switch (mState) {
-        case PowerButton.STATE_DISABLED:
+        case STATE_DISABLED:
             mIcon = R.drawable.stat_2g3g_off;
             break;
-        case PowerButton.STATE_ENABLED:
+        case STATE_ENABLED:
             if (NETWORK_MODE == Phone.NT_MODE_WCDMA_ONLY) {
                 mIcon = R.drawable.stat_3g_on;
             } else {
                 mIcon = R.drawable.stat_2g3g_on;
             }
             break;
-        case PowerButton.STATE_INTERMEDIATE:
+        case STATE_INTERMEDIATE:
             // In the transitional state, the bottom green bar
             // shows the tri-state (on, off, transitioning), but
             // the top dark-gray-or-bright-white logo shows the
             // user's intent. This is much easier to see in
             // sunlight.
-            if (CURRENT_INTERNAL_STATE == PowerButton.STATE_TURNING_ON) {
+            if (CURRENT_INTERNAL_STATE == STATE_TURNING_ON) {
                 if (INTENDED_NETWORK_MODE == Phone.NT_MODE_WCDMA_ONLY) {
                     mIcon = R.drawable.stat_3g_on;
                 } else {
@@ -78,17 +78,17 @@ public class NetworkModeButton extends PowerButton{
         case Phone.NT_MODE_WCDMA_PREF:
         case Phone.NT_MODE_GSM_UMTS:
             intent.putExtra(NETWORK_MODE_KEY, Phone.NT_MODE_GSM_ONLY);
-            CURRENT_INTERNAL_STATE = PowerButton.STATE_TURNING_OFF;
+            CURRENT_INTERNAL_STATE = STATE_TURNING_OFF;
             INTENDED_NETWORK_MODE=Phone.NT_MODE_GSM_ONLY;
             break;
         case Phone.NT_MODE_WCDMA_ONLY:
             intent.putExtra(NETWORK_MODE_KEY, Phone.NT_MODE_WCDMA_PREF);
-            CURRENT_INTERNAL_STATE = PowerButton.STATE_TURNING_ON;
+            CURRENT_INTERNAL_STATE = STATE_TURNING_ON;
             INTENDED_NETWORK_MODE = Phone.NT_MODE_WCDMA_PREF;
             break;
         case Phone.NT_MODE_GSM_ONLY:
             intent.putExtra(NETWORK_MODE_KEY, Phone.NT_MODE_WCDMA_PREF);
-            CURRENT_INTERNAL_STATE = PowerButton.STATE_TURNING_ON;
+            CURRENT_INTERNAL_STATE = STATE_TURNING_ON;
             INTENDED_NETWORK_MODE = Phone.NT_MODE_WCDMA_PREF;
             break;
         }
@@ -106,11 +106,11 @@ public class NetworkModeButton extends PowerButton{
         }
 
         //need to clear intermediate states
-        CURRENT_INTERNAL_STATE=PowerButton.STATE_ENABLED;
+        CURRENT_INTERNAL_STATE=STATE_ENABLED;
 
         int widgetState = networkModeToState(context);
         CURRENT_INTERNAL_STATE = widgetState;
-        if (widgetState == PowerButton.STATE_ENABLED) {
+        if (widgetState == STATE_ENABLED) {
             MobileDataButton.getInstance().networkModeChanged(context, NETWORK_MODE);
         }
     }
@@ -139,18 +139,18 @@ public class NetworkModeButton extends PowerButton{
     }
 
     private static int networkModeToState(Context context) {
-        if (CURRENT_INTERNAL_STATE == PowerButton.STATE_TURNING_ON ||
-                CURRENT_INTERNAL_STATE == PowerButton.STATE_TURNING_OFF)
-            return PowerButton.STATE_INTERMEDIATE;
+        if (CURRENT_INTERNAL_STATE == STATE_TURNING_ON ||
+                CURRENT_INTERNAL_STATE == STATE_TURNING_OFF)
+            return STATE_INTERMEDIATE;
 
         switch(NETWORK_MODE) {
             case Phone.NT_MODE_WCDMA_PREF:
             case Phone.NT_MODE_WCDMA_ONLY:
             case Phone.NT_MODE_GSM_UMTS:
-                return PowerButton.STATE_ENABLED;
+                return STATE_ENABLED;
             case Phone.NT_MODE_GSM_ONLY:
-                return PowerButton.STATE_DISABLED;
+                return STATE_DISABLED;
         }
-        return PowerButton.STATE_INTERMEDIATE;
+        return STATE_INTERMEDIATE;
     }
 }

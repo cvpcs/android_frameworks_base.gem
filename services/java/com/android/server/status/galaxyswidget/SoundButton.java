@@ -24,26 +24,26 @@ public class SoundButton extends PowerButton {
     public static AudioManager AUDIO_MANAGER = null;
     public static Vibrator VIBRATOR = null;
 
-    public SoundButton() { mType = PowerButton.BUTTON_SOUND; }
+    public SoundButton() { mType = BUTTON_SOUND; }
 
     @Override
     public void updateState() {
         switch (getSoundState(mView.getContext())) {
         case RINGER_MODE_SOUND_AND_VIBRATE:
                 mIcon = R.drawable.stat_ring_vibrate_on;
-                mState = PowerButton.STATE_ENABLED;
+                mState = STATE_ENABLED;
             break;
         case RINGER_MODE_SOUND_ONLY:
                 mIcon = R.drawable.stat_ring_on;
-                mState = PowerButton.STATE_ENABLED;
+                mState = STATE_ENABLED;
             break;
         case RINGER_MODE_VIBRATE_ONLY:
                 mIcon = R.drawable.stat_vibrate_off;
-                mState = PowerButton.STATE_DISABLED;
+                mState = STATE_DISABLED;
             break;
         case RINGER_MODE_SILENT:
                 mIcon = R.drawable.stat_silent;
-                mState = PowerButton.STATE_DISABLED;
+                mState = STATE_DISABLED;
             break;
 
         }
@@ -128,7 +128,7 @@ public class SoundButton extends PowerButton {
         }
     }
 
-    public static void initServices(Context context) {
+    private static void initServices(Context context) {
         if(AUDIO_MANAGER == null) {
             AUDIO_MANAGER = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         }

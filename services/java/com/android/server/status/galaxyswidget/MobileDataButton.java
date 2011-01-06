@@ -14,19 +14,19 @@ public class MobileDataButton extends PowerButton {
     public static boolean STATE_CHANGE_REQUEST = false;
     private static MobileDataButton OWN_BUTTON = null;
 
-    public MobileDataButton() { mType = PowerButton.BUTTON_MOBILEDATA; }
+    public MobileDataButton() { mType = BUTTON_MOBILEDATA; }
 
     @Override
     public void updateState() {
         if (STATE_CHANGE_REQUEST) {
             mIcon = R.drawable.stat_data_on;
-            mState = PowerButton.STATE_INTERMEDIATE;
+            mState = STATE_INTERMEDIATE;
         } else  if (getDataState(mView.getContext())) {
             mIcon = R.drawable.stat_data_on;
-            mState = PowerButton.STATE_ENABLED;
+            mState = STATE_ENABLED;
         } else {
             mIcon = R.drawable.stat_data_off;
-            mState = PowerButton.STATE_DISABLED;
+            mState = STATE_DISABLED;
         }
     }
 

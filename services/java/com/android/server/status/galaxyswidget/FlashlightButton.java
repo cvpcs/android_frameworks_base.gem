@@ -31,7 +31,7 @@ public class FlashlightButton extends PowerButton {
         }
     }
 
-    public FlashlightButton() { mType = PowerButton.BUTTON_FLASHLIGHT; }
+    public FlashlightButton() { mType = BUTTON_FLASHLIGHT; }
 
     @Override
     public void updateState() {

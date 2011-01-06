@@ -23,7 +23,7 @@ public class ScreenTimeoutButton extends PowerButton {
 
     private static ScreenTimeoutButton OWN_BUTTON = null;
 
-    public ScreenTimeoutButton() { mType = PowerButton.BUTTON_SCREENTIMEOUT; }
+    public ScreenTimeoutButton() { mType = BUTTON_SCREENTIMEOUT; }
 
     @Override
     public void updateState() {
@@ -31,13 +31,13 @@ public class ScreenTimeoutButton extends PowerButton {
 
         if (timeout <= SCREEN_TIMEOUT_LT) {
             mIcon = R.drawable.stat_screen_timeout_off;
-            mState = PowerButton.STATE_DISABLED;
+            mState = STATE_DISABLED;
         } else if (timeout <= SCREEN_TIMEOUT_HT) {
             mIcon = R.drawable.stat_screen_timeout_off;
-            mState = PowerButton.STATE_INTERMEDIATE;
+            mState = STATE_INTERMEDIATE;
         } else {
             mIcon = R.drawable.stat_screen_timeout_on;
-            mState = PowerButton.STATE_ENABLED;
+            mState = STATE_ENABLED;
         }
     }
 

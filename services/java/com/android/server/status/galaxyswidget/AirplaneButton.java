@@ -20,16 +20,16 @@ public class AirplaneButton extends PowerButton {
         OBSERVED_URIS.add(Settings.System.getUriFor(Settings.System.AIRPLANE_MODE_ON));
     }
 
-    public AirplaneButton() { mType = PowerButton.BUTTON_AIRPLANE; }
+    public AirplaneButton() { mType = BUTTON_AIRPLANE; }
 
     @Override
     public void updateState() {
         if (getState(mView.getContext())) {
             mIcon = R.drawable.stat_airplane_on;
-            mState = PowerButton.STATE_ENABLED;
+            mState = STATE_ENABLED;
         } else {
             mIcon = R.drawable.stat_airplane_off;
-            mState = PowerButton.STATE_DISABLED;
+            mState = STATE_DISABLED;
         }
     }
 

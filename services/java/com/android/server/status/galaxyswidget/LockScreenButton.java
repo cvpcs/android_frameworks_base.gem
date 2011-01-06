@@ -17,20 +17,20 @@ public class LockScreenButton extends PowerButton {
 
     private KeyguardLock mLock = null;
 
-    public LockScreenButton() { mType = PowerButton.BUTTON_LOCKSCREEN; }
+    public LockScreenButton() { mType = BUTTON_LOCKSCREEN; }
 
     @Override
     public void updateState() {
         getState();
         if (LOCK_SCREEN_STATE == null) {
             mIcon = R.drawable.stat_lock_screen_off;
-            mState = PowerButton.STATE_INTERMEDIATE;
+            mState = STATE_INTERMEDIATE;
         } else if (LOCK_SCREEN_STATE) {
             mIcon = R.drawable.stat_lock_screen_on;
-            mState = PowerButton.STATE_ENABLED;
+            mState = STATE_ENABLED;
         } else {
             mIcon = R.drawable.stat_lock_screen_off;
-            mState = PowerButton.STATE_DISABLED;
+            mState = STATE_DISABLED;
         }
     }
 

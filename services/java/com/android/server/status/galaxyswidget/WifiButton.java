@@ -94,7 +94,7 @@ public class WifiButton extends PowerButton{
         }
     }
 
-    public WifiButton() { mType = PowerButton.BUTTON_WIFI; }
+    public WifiButton() { mType = BUTTON_WIFI; }
 
     @Override
     public void updateState() {

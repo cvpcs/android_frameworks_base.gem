@@ -28,7 +28,7 @@ public class WifiApButton extends PowerButton {
             if (wifiManager != null) {
                 return wifiApStateToFiveState(wifiManager.getWifiApState());
             }
-            return PowerButton.STATE_UNKNOWN;
+            return STATE_UNKNOWN;
         }
 
         @Override
@@ -86,32 +86,32 @@ public class WifiApButton extends PowerButton {
         private static int wifiApStateToFiveState(int wifiState) {
             switch (wifiState) {
             case WifiManager.WIFI_AP_STATE_DISABLED:
-                return PowerButton.STATE_DISABLED;
+                return STATE_DISABLED;
             case WifiManager.WIFI_AP_STATE_ENABLED:
-                return PowerButton.STATE_ENABLED;
+                return STATE_ENABLED;
             case WifiManager.WIFI_AP_STATE_DISABLING:
-                return PowerButton.STATE_TURNING_OFF;
+                return STATE_TURNING_OFF;
             case WifiManager.WIFI_AP_STATE_ENABLING:
-                return PowerButton.STATE_TURNING_ON;
+                return STATE_TURNING_ON;
             default:
-                return PowerButton.STATE_UNKNOWN;
+                return STATE_UNKNOWN;
             }
         }
     }
 
-    public WifiApButton() { mType = PowerButton.BUTTON_WIFIAP; }
+    public WifiApButton() { mType = BUTTON_WIFIAP; }
 
     @Override
     public void updateState() {
         mState = sWifiApState.getTriState(mView.getContext());
         switch (mState) {
-        case PowerButton.STATE_DISABLED:
+        case STATE_DISABLED:
             mIcon = R.drawable.stat_wifi_ap_off;
             break;
-        case PowerButton.STATE_ENABLED:
+        case STATE_ENABLED:
             mIcon = R.drawable.stat_wifi_ap_on;
             break;
-        case PowerButton.STATE_INTERMEDIATE:
+        case STATE_INTERMEDIATE:
             // In the transitional state, the bottom green bar
             // shows the tri-state (on, off, transitioning), but
             // the top dark-gray-or-bright-white logo shows the

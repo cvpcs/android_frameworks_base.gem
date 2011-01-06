@@ -11,7 +11,7 @@ import android.os.SystemClock;
 public class SleepButton extends PowerButton {
     private static SleepButton OWN_BUTTON = null;
 
-    public SleepButton() { mType = PowerButton.BUTTON_SLEEP; }
+    public SleepButton() { mType = BUTTON_SLEEP; }
 
     @Override
     public void updateState() {
