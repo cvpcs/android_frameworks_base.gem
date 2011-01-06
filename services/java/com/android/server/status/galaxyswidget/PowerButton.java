@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public abstract class PowerButton {
     public static final int STATE_ENABLED = 1;
@@ -47,6 +48,7 @@ public abstract class PowerButton {
     public static final String BUTTON_MEDIA_NEXT = "media_next";
     public static final String BUTTON_UNKNOWN = "unknown";
 
+    // color based on color from settings power widget
     public static final int DEFAULT_INDICATOR_COLOR = 0xFF99CC33;
 
     private static final Mode MASK_MODE = Mode.SCREEN;
@@ -228,5 +230,9 @@ public abstract class PowerButton {
                 button.onChangeUri(uri);
             }
         }
+    }
+
+    public static Set<String> getAllButtonIdentifiers() {
+        return BUTTONS.keySet();
     }
 }
