@@ -42,6 +42,9 @@ public abstract class PowerButton {
     public static final String BUTTON_AIRPLANE = "airplane";
     public static final String BUTTON_FLASHLIGHT = "flashlight";
     public static final String BUTTON_SLEEP = "sleep";
+    public static final String BUTTON_MEDIA_PLAY_PAUSE = "media_play_pause";
+    public static final String BUTTON_MEDIA_PREVIOUS = "media_previous";
+    public static final String BUTTON_MEDIA_NEXT = "media_next";
     public static final String BUTTON_UNKNOWN = "unknown";
 
     private static final Mode MASK_MODE = Mode.SCREEN;
@@ -62,6 +65,9 @@ public abstract class PowerButton {
         BUTTONS.put(BUTTON_AIRPLANE, AirplaneButton.getInstance());
         BUTTONS.put(BUTTON_FLASHLIGHT, FlashlightButton.getInstance());
         BUTTONS.put(BUTTON_SLEEP, SleepButton.getInstance());
+        BUTTONS.put(BUTTON_MEDIA_PLAY_PAUSE, MediaPlayPauseButton.getInstance());
+        BUTTONS.put(BUTTON_MEDIA_PREVIOUS, MediaPreviousButton.getInstance());
+        BUTTONS.put(BUTTON_MEDIA_NEXT, MediaNextButton.getInstance());
     }
 
     protected int mIcon;
