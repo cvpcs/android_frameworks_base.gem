@@ -8,6 +8,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.SystemClock;
 import android.view.KeyEvent;
+import android.view.View;
 
 public abstract class MediaKeyEventButton extends PowerButton {
     private static AudioManager AUDIO_MANAGER = null;
