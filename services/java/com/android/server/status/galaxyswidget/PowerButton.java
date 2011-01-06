@@ -40,6 +40,8 @@ public abstract class PowerButton {
     public static final String BUTTON_NETWORKMODE = "networkmode";
     public static final String BUTTON_AUTOROTATE = "autorotate";
     public static final String BUTTON_AIRPLANE = "airplane";
+    public static final String BUTTON_FLASHLIGHT = "flashlight";
+    public static final String BUTTON_SLEEP = "sleep";
     public static final String BUTTON_UNKNOWN = "unknown";
 
     private static final Mode MASK_MODE = Mode.SCREEN;
@@ -58,6 +60,8 @@ public abstract class PowerButton {
         BUTTONS.put(BUTTON_NETWORKMODE, NetworkModeButton.getInstance());
         BUTTONS.put(BUTTON_AUTOROTATE, AutoRotateButton.getInstance());
         BUTTONS.put(BUTTON_AIRPLANE, AirplaneButton.getInstance());
+        BUTTONS.put(BUTTON_FLASHLIGHT, FlashlightButton.getInstance());
+        BUTTONS.put(BUTTON_SLEEP, SleepButton.getInstance());
     }
 
     protected int mIcon;

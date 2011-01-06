@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.provider.Settings.SettingNotFoundException;
-import android.widget.Toast;
 import android.provider.Settings;
 
 import com.android.internal.telephony.Phone;
