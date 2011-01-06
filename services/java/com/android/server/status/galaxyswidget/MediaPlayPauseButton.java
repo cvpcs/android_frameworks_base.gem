@@ -23,10 +23,10 @@ public class MediaPlayPauseButton extends MediaKeyEventButton {
 
     @Override
     protected void toggleState() {
-        sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+        sendMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
     }
 
-    public static MediaPlayButton getInstance() {
+    public static MediaPlayPauseButton getInstance() {
         if (OWN_BUTTON==null) OWN_BUTTON = new MediaPlayPauseButton();
         return OWN_BUTTON;
     }

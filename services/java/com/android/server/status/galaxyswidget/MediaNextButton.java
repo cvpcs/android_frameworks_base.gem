@@ -22,10 +22,10 @@ public class MediaNextButton extends MediaKeyEventButton {
 
     @Override
     protected void toggleState() {
-        sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_NEXT);
+        sendMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_NEXT);
     }
 
-    public static MediaPlayButton getInstance() {
+    public static MediaNextButton getInstance() {
         if (OWN_BUTTON==null) OWN_BUTTON = new MediaNextButton();
         return OWN_BUTTON;
     }
