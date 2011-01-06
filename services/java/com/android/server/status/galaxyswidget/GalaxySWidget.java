@@ -189,7 +189,7 @@ public class GalaxySWidget extends LinearLayout {
 
             // now check if we need to display the widget still
             boolean displayPowerWidget = Settings.System.getInt(mContext.getContentResolver(),
-                       Settings.System.DISPLAY_GALAXY_S_WIDGET, 1) == 1;
+                       Settings.System.DISPLAY_GALAXY_S_WIDGET, 0) == 1;
             if(!displayPowerWidget) {
                 setVisibility(View.GONE);
             } else {
