@@ -10,9 +10,8 @@ import android.view.Gravity;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 
 public class FlashlightButton extends PowerButton {
     private static final String TAG = "FlashlightButton";
@@ -38,7 +37,7 @@ public class FlashlightButton extends PowerButton {
     public void updateState() {
         if(getFlashlightEnabled()) {
             mIcon = com.android.internal.R.drawable.stat_flashlight_on;
-            mtState = STATE_ENABLED;
+            mState = STATE_ENABLED;
         } else {
             mIcon = com.android.internal.R.drawable.stat_flashlight_off;
             mState = STATE_DISABLED;
@@ -57,7 +56,7 @@ public class FlashlightButton extends PowerButton {
             return;
         }
 
-        setFlashlightEnables(!getFlashlightEnabled());
+        setFlashlightEnabled(!getFlashlightEnabled());
     }
 
     public static FlashlightButton getInstance() {
@@ -69,16 +68,17 @@ public class FlashlightButton extends PowerButton {
         // catchall if flashlight isn't supported
         if(FLASHLIGHT == null) { return false; }
 
+        FileReader fr = null;
         int result = '0';
 
         try {
-            FileReader fr = new FileReader(FLASHLIGHT);
+            fr = new FileReader(FLASHLIGHT);
             result = fr.read();
         } catch (Exception e) {
             Log.e(TAG, "getFlashlightEnabled failed", e);
         } finally {
             // if something goes wrong, try at least to close this
-            try { fr.close(); } catch (Exception e) {
+            try { if(fr != null) { fr.close(); } } catch (Exception e) {
                 Log.e(TAG, "setFlashlightEnabled failed", e);
             }
         }
@@ -90,15 +90,17 @@ public class FlashlightButton extends PowerButton {
         // catchall if flashlight isn't supported
         if(FLASHLIGHT == null) { return; }
 
+        FileWriter fw = null;
+
         try {
-            FileWriter fw = new FileWriter(FLASHLIGHT_FILE);
-            int value = (on ? 1 : 0);
+            fw = new FileWriter(FLASHLIGHT_FILE);
+            int value = (enabled ? 1 : 0);
             fw.write(String.valueOf(value));
         } catch (Exception e) {
             Log.e(TAG, "setFlashlightEnabled failed", e);
         } finally {
             // if something goes wrong, try at least to close this
-            try { fw.close(); } catch (Exception e) {
+            try { if(fw != null) { fw.close(); } } catch (Exception e) {
                 Log.e(TAG, "setFlashlightEnabled failed", e);
             }
         }
