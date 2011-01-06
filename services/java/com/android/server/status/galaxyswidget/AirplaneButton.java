@@ -5,11 +5,20 @@ import com.android.internal.R;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.provider.Settings;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AirplaneButton extends PowerButton {
 
     private static AirplaneButton OWN_BUTTON = null;
+
+    private static final List<Uri> OBSERVED_URIS = new ArrayList<Uri>();
+    static {
+        OBSERVED_URIS.add(Settings.System.getUriFor(Settings.System.AIRPLANE_MODE_ON));
+    }
 
     public AirplaneButton() { mType = PowerButton.BUTTON_AIRPLANE; }
 
@@ -34,6 +43,11 @@ public class AirplaneButton extends PowerButton {
         Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
         intent.putExtra("state", state);
         context.sendBroadcast(intent);
+    }
+
+    @Override
+    protected List<Uri> getObservedUris() {
+        return OBSERVED_URIS;
     }
 
     public static AirplaneButton getInstance() {

@@ -3,6 +3,7 @@ package com.android.server.status.galaxyswidget;
 import com.android.internal.R;
 
 import android.content.Context;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.provider.Settings;
@@ -77,6 +78,15 @@ public class SoundButton extends PowerButton {
             mAudioManager.setVibrateSetting(AudioManager.VIBRATE_TYPE_RINGER,AudioManager.VIBRATE_SETTING_ONLY_SILENT);
             break;
         }
+    }
+
+    @Override
+    protected IntentFilter getBroadcastIntentFilter() {
+        // note, we don't actually have an "onReceive", so the caught intent will be ignored, but we want
+        // to catch it anyway so the ringer status is updated if changed externally :D
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(AudioManager.RINGER_MODE_CHANGED_ACTION);
+        return filter;
     }
 
     public static SoundButton getInstance() {

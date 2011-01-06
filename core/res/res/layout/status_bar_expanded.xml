@@ -34,7 +34,7 @@
         android:background="@drawable/status_bar_header_background"
         >
         <!-- Begin Power Widget -->
-        <com.android.server.status.GalaxySWidget android:id="@+id/galaxy_s_widget"
+        <com.android.server.status.galaxyswidget.GalaxySWidget android:id="@+id/galaxy_s_widget"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"

@@ -74,8 +74,8 @@ public class ScreenTimeoutButton extends PowerButton {
     }
 
     public static ScreenTimeoutButton getInstance() {
-        if (ownButton == null) ownButton = new ScreenTimeoutButton();
-        return ownButton;
+        if (OWN_BUTTON == null) OWN_BUTTON = new ScreenTimeoutButton();
+        return OWN_BUTTON;
     }
 
     private static int getScreenTtimeout(Context context) {

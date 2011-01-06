@@ -4,6 +4,7 @@ import com.android.internal.R;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -130,8 +131,16 @@ public class WifiApButton extends PowerButton {
         sWifiApState.toggleState(mView.getContext());
     }
 
+    @Override
     public void onReceive(Context context, Intent intent) {
         sWifiApState.onActualStateChange(context, intent);
+    }
+
+    @Override
+    protected IntentFilter getBroadcastIntentFilter() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(WifiManager.WIFI_AP_STATE_CHANGED_ACTION);
+        return filter;
     }
 
     public static WifiApButton getInstance() {

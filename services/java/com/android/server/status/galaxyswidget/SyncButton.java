@@ -15,7 +15,7 @@ public class SyncButton extends PowerButton {
 
     @Override
     public void updateState() {
-        if (getSync(mView.getContext())) {
+        if (getSyncState(mView.getContext())) {
             mIcon = R.drawable.stat_sync_on;
             mState = PowerButton.STATE_ENABLED;
         } else {

@@ -24,7 +24,6 @@ import android.app.Dialog;
 import android.app.IStatusBar;
 import android.app.PendingIntent;
 import android.app.StatusBarManager;
-import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -36,11 +35,7 @@ import android.database.ContentObserver;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.location.LocationManager;
-import android.media.AudioManager;
 import android.net.Uri;
-import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.Binder;
@@ -72,15 +67,10 @@ import android.widget.FrameLayout;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
 import android.provider.Settings;
-import java.lang.reflect.Field;
-
-import android.graphics.drawable.StateListDrawable;
 
 import com.android.server.status.galaxyswidget.GalaxySWidget;
 
@@ -251,9 +241,7 @@ public class StatusBarService extends IStatusBar.Stub
     int mNotificationTitleColor = mBlackColor;
     int mNotificationTextColor = mBlackColor;
     int mNotificationTimeColor = mBlackColor;
-    
-    private WifiManager mWifiManager = null;
-    private BluetoothAdapter mBluetoothAdapter = null;
+   
     // for disabling the status bar
     ArrayList<DisableRecord> mDisableRecords = new ArrayList<DisableRecord>();
     int mDisabled = 0;
@@ -263,7 +251,7 @@ public class StatusBarService extends IStatusBar.Stub
      */
     public StatusBarService(Context context) {
         mContext = context;
-	mHandler = new H();
+	    mHandler = new H();
 
         mNotificationTitleColor = Settings.System.getInt(
                 context.getContentResolver(),
@@ -343,6 +331,7 @@ public class StatusBarService extends IStatusBar.Stub
         mLatestTitle.setVisibility(View.GONE);
 
         mGalaxySWidget = (GalaxySWidget)expanded.findViewById(R.id.galaxy_s_widget);
+        mGalaxySWidget.setupSettingsObserver(mHandler);
 
         mTicker = new MyTicker(context, sb);
 
@@ -381,12 +370,6 @@ public class StatusBarService extends IStatusBar.Stub
         filter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         filter.addAction(Telephony.Intents.SPN_STRINGS_UPDATED_ACTION);
-        filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
-        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        filter.addAction(Settings.SETTINGS_CHANGED);
-        filter.addAction(AudioManager.RINGER_MODE_CHANGED_ACTION);
-        filter.addAction(WifiManager.WIFI_AP_STATE_CHANGED_ACTION);
-        filter.addAction(NetworkModeButton.NETWORK_MODE_CHANGED);
         context.registerReceiver(mBroadcastReceiver, filter);
     }
 
@@ -405,9 +388,7 @@ public class StatusBarService extends IStatusBar.Stub
         lp.windowAnimations = R.style.Animation_StatusBar;
         WindowManagerImpl.getDefault().addView(view, lp);
 
-        mWifiManager = (WifiManager)mContext.getSystemService(Context.WIFI_SERVICE);
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        setupPowerWidget();
+        mGalaxySWidget.setupWidget();
     }
 
     // ================================================================================
@@ -1912,16 +1893,6 @@ public class StatusBarService extends IStatusBar.Stub
             else if (Intent.ACTION_CONFIGURATION_CHANGED.equals(action)) {
                 updateResources();
             }
-            else if (WifiManager.WIFI_STATE_CHANGED_ACTION.equals(action)) {
-                WifiButton.getInstance().onReceive(context, intent);
-            } else if (WifiManager.WIFI_AP_STATE_CHANGED_ACTION.equals(intent.getAction())) {
-                WifiApButton.getInstance().onReceive(context, intent);
-            } else if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(intent.getAction())) {
-                BluetoothButton.getInstance().onReceive(context, intent);
-            } else if (NetworkModeButton.NETWORK_MODE_CHANGED.equals(intent.getAction())) {
-                NetworkModeButton.getInstance().onReceive(context, intent);
-            }
-            mGalaxySWidget.updateWidget();
         }
     };
 
@@ -2047,7 +2018,7 @@ public class StatusBarService extends IStatusBar.Stub
         }
     }
 
-    public class SettingsObserver extends ContentObserver {
+    private class SettingsObserver extends ContentObserver {
         public SettingsObserver(Handler handler) {
             super(handler);
         }
@@ -2093,53 +2064,11 @@ public class StatusBarService extends IStatusBar.Stub
             resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.DISPLAY_BATTERY_PERCENTAGE),
                             false, this);
-
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.DISPLAY_GALAXY_S_WIDGET),
-                            false, this);
-
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS_MODE),
-                            false, this);
-
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS),
-                            false, this);
-
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.AIRPLANE_MODE_ON),
-                            false, this);
-
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.GALAXY_S_WIDGET_BUTTONS),
-                            false, this);
-
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.GALAXY_S_WIDGET_COLOR),
-                            false, this);
         }
 
         @Override
         public void onChangeUri(Uri uri, boolean selfChange) {
-            update(uri);
-        }
-
-        public void update(Uri uri) {
-            ContentResolver resolver = mContext.getContentResolver();
-            Resources res = mContext.getResources();
             updateColors();
-            if(uri.equals(Settings.System.getUriFor(Settings.System.GALAXY_S_WIDGET_BUTTONS))) {
-                mGalaxySPowerWidget.setupWidget();
-            }
-
-            boolean displayPowerWidget = Settings.System.getInt(mContext.getContentResolver(),
-                       Settings.System.DISPLAY_GALAXY_S_WIDGET, 1) == 1;
-            if(!displayPowerWidget) {
-                mGalaxySPowerWidget.setVisibility(View.GONE);
-            } else {
-                mGalaxySPowerWidget.setVisibility(View.VISIBLE);
-            }
-            mGalaxySWidget.updateWidget();
         }
     }
 }

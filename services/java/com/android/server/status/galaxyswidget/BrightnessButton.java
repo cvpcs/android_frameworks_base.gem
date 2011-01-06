@@ -5,12 +5,16 @@ import com.android.internal.R;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.IPowerManager;
 import android.os.Power;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.provider.Settings;
 import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BrightnessButton extends PowerButton {
 
@@ -20,6 +24,10 @@ public class BrightnessButton extends PowerButton {
      */
     private static final int MIN_BACKLIGHT = Power.BRIGHTNESS_DIM + 10;
     private static final int MAX_BACKLIGHT = Power.BRIGHTNESS_ON;
+    /**
+     * Auto-backlight level
+     */
+    private static final int AUTO_BACKLIGHT = -1;
     /**
      * Mid-range brightness values + thresholds
      */
@@ -31,6 +39,12 @@ public class BrightnessButton extends PowerButton {
 
     private static Boolean SUPPORTS_AUTO_BACKLIGHT=null;
     private static BrightnessButton OWN_BUTTON = null;
+
+    private static final List<Uri> OBSERVED_URIS = new ArrayList<Uri>();
+    static {
+        OBSERVED_URIS.add(Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS));
+        OBSERVED_URIS.add(Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS_MODE));
+    }
 
     public BrightnessButton() { mType = PowerButton.BUTTON_BRIGHTNESS; }
 
@@ -91,13 +105,17 @@ public class BrightnessButton extends PowerButton {
         }
     }
 
+    @Override
+    protected List<Uri> getObservedUris() {
+        return OBSERVED_URIS;
+    }
+
     public static BrightnessButton getInstance() {
         if (OWN_BUTTON == null) OWN_BUTTON = new BrightnessButton();
         return OWN_BUTTON;
     }
 
     private static int getNextBrightnessValue(Context context) {
-        Context context = mView.getContext();
         int brightness = Settings.System.getInt(context.getContentResolver(),
                 Settings.System.SCREEN_BRIGHTNESS,0);
 

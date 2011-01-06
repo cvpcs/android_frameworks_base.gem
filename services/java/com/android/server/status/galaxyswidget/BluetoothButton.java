@@ -5,6 +5,7 @@ import com.android.internal.R;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
@@ -83,7 +84,7 @@ public class BluetoothButton extends PowerButton {
     @Override
     public void updateState() {
         mState = sBluetoothState.getTriState(mView.getContext());
-        switch (currentState) {
+        switch (mState) {
         case PowerButton.STATE_DISABLED:
             mIcon = R.drawable.stat_bluetooth_off;
             break;
@@ -110,12 +111,20 @@ public class BluetoothButton extends PowerButton {
         sBluetoothState.toggleState(mView.getContext());
     }
 
+    @Override
     public void onReceive(Context context, Intent intent) {
         sBluetoothState.onActualStateChange(context, intent);
     }
 
+    @Override
+    protected IntentFilter getBroadcastIntentFilter() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        return filter;
+    }
+
     public static BluetoothButton getInstance() {
         if (OWN_BUTTON == null) OWN_BUTTON = new BluetoothButton();
-        return ownButton;
+        return OWN_BUTTON;
     }
 }

@@ -4,6 +4,7 @@ import com.android.internal.R;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.provider.Settings.SettingNotFoundException;
 import android.widget.Toast;
 import android.provider.Settings;
@@ -76,17 +77,17 @@ public class NetworkModeButton extends PowerButton{
         Intent intent = new Intent(MODIFY_NETWORK_MODE);
         switch (NETWORK_MODE) {
         case Phone.NT_MODE_WCDMA_PREF:
-            intent.putExtra(NETWORK_MODE, Phone.NT_MODE_GSM_ONLY);
+            intent.putExtra(NETWORK_MODE_KEY, Phone.NT_MODE_GSM_ONLY);
             CURRENT_INTERNAL_STATE = PowerButton.STATE_TURNING_OFF;
             INTENDED_NETWORK_MODE=Phone.NT_MODE_GSM_ONLY;
             break;
         case Phone.NT_MODE_WCDMA_ONLY:
-            intent.putExtra(NETWORK_MODE, Phone.NT_MODE_WCDMA_PREF);
+            intent.putExtra(NETWORK_MODE_KEY, Phone.NT_MODE_WCDMA_PREF);
             CURRENT_INTERNAL_STATE = PowerButton.STATE_TURNING_ON;
             INTENDED_NETWORK_MODE = Phone.NT_MODE_WCDMA_PREF;
             break;
         case Phone.NT_MODE_GSM_ONLY:
-            intent.putExtra(NETWORK_MODE, Phone.NT_MODE_WCDMA_PREF);
+            intent.putExtra(NETWORK_MODE_KEY, Phone.NT_MODE_WCDMA_PREF);
             CURRENT_INTERNAL_STATE = PowerButton.STATE_TURNING_ON;
             INTENDED_NETWORK_MODE = Phone.NT_MODE_WCDMA_PREF;
             break;
@@ -94,6 +95,31 @@ public class NetworkModeButton extends PowerButton{
 
         NETWORK_MODE = NETWORK_MODE_UNKNOWN;
         mView.getContext().sendBroadcast(intent);
+    }
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        if (intent.getExtras() != null) {
+            NETWORK_MODE = intent.getExtras().getInt(NETWORK_MODE_KEY);
+            //Update to actual state
+            INTENDED_NETWORK_MODE=NETWORK_MODE;
+        }
+
+        //need to clear intermediate states
+        CURRENT_INTERNAL_STATE=PowerButton.STATE_ENABLED;
+
+        int widgetState = networkModeToState(context);
+        CURRENT_INTERNAL_STATE = widgetState;
+        if (widgetState == PowerButton.STATE_ENABLED) {
+            MobileDataButton.getInstance().networkModeChanged(context, NETWORK_MODE);
+        }
+    }
+
+    @Override
+    protected IntentFilter getBroadcastIntentFilter() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(NETWORK_MODE_CHANGED);
+        return filter;
     }
 
     public static NetworkModeButton getInstance() {
@@ -125,22 +151,5 @@ public class NetworkModeButton extends PowerButton{
                 return PowerButton.STATE_DISABLED;
         }
         return PowerButton.STATE_INTERMEDIATE;
-    }
-
-    public void onReceive(Context context, Intent intent) {
-        if (intent.getExtras() != null) {
-            NETWORK_MODE = intent.getExtras().getInt(NETWORK_MODE_KEY);
-            //Update to actual state
-            INTENDED_NETWORK_MODE=NETWORK_MODE;
-        }
-
-        //need to clear intermediate states
-        CURRENT_INTERNAL_STATE=PowerButton.STATE_ENABLED;
-
-        int widgetState = networkModeToState(context);
-        CURRENT_INTERNAL_STATE = widgetState;
-        if (widgetState == PowerButton.STATE_ENABLED) {
-            MobileDataButton.getInstance().networkModeChanged(context, NETWORK_MODE);
-        }
     }
 }

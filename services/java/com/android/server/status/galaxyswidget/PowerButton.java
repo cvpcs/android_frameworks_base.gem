@@ -3,15 +3,20 @@ package com.android.server.status.galaxyswidget;
 import com.android.internal.R;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.graphics.PorterDuff.Mode;
+import android.net.Uri;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.provider.Settings;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public abstract class PowerButton {
@@ -63,12 +68,22 @@ public abstract class PowerButton {
     public abstract void updateState();
     protected abstract void toggleState();
 
-    public static PowerButton getButtonInstance(String button) {
-        if(BUTTONS.containsKey(button)) {
-            return BUTTONS.get(button);
-        } else {
-            return null;
-        }
+    public void onReceive(Context context, Intent intent) {
+        // do nothing as a standard, override this if the button needs to respond
+        // to broadcast events from the StatusBarService broadcast receiver
+    }
+
+    public void onChangeUri(Uri uri) {
+        // do nothing as a standard, override this if the button needs to respond
+        // to a changed setting
+    }
+
+    protected IntentFilter getBroadcastIntentFilter() {
+        return new IntentFilter();
+    }
+
+    protected List<Uri> getObservedUris() {
+        return new ArrayList<Uri>();
     }
 
     public void setupButton(View view) {
@@ -90,10 +105,10 @@ public abstract class PowerButton {
 			updateImageView(buttonIcon, mIcon);
 
 			int sColorMaskBase = Settings.System.getInt(context.getContentResolver(),
-				Settings.System.GALAXY_S_WIDGET_COLOR, 0xFF00EFFF);
-			int sColorMaskOn    = (sColorMaskBase & 0x00FFFFFF) | 0xA0000000;
-			int sColorMaskOff   = (sColorMaskBase & 0x00FFFFFF) | 0x33000000;
-			int sColorMaskInter = (sColorMaskBase & 0x00FFFFFF) | 0x60000000;
+				Settings.System.GALAXY_S_WIDGET_COLOR, 0xFF99CC33);
+			int sColorMaskOn    = (sColorMaskBase & 0x00FFFFFF) | 0xC0000000;
+			int sColorMaskOff   = (sColorMaskBase & 0x00FFFFFF) | 0x30000000;
+			int sColorMaskInter = (sColorMaskBase & 0x00FFFFFF) | 0x70000000;
 
 			/* Button State */
 			switch(mState) {
@@ -131,8 +146,75 @@ public abstract class PowerButton {
             for(Map.Entry<String, PowerButton> entry : BUTTONS.entrySet()) {
                 if(entry.getKey().equals(type)) {
                     entry.getValue().toggleState();
+                    break;
                 }
             }
         }
     };
+
+    public static PowerButton getButtonInstance(String button) {
+        if(BUTTONS.containsKey(button)) {
+            return BUTTONS.get(button);
+        } else {
+            return null;
+        }
+    }
+
+    // glue for broadcast receivers
+    public static IntentFilter getAllBroadcastIntentFilters() {
+        IntentFilter filter = new IntentFilter();
+
+        for(PowerButton button : BUTTONS.values()) {
+            IntentFilter tmp = button.getBroadcastIntentFilter();
+
+            // cycle through these actions, and see if we need them
+            int num = tmp.countActions();
+            for(int i = 0; i < num; i++) {
+                String action = tmp.getAction(i);
+                if(!filter.hasAction(action)) {
+                    filter.addAction(action);
+                }
+            }
+        }
+
+        // return our merged filter
+        return filter;
+    }
+
+    // glue for content observation
+    public static List<Uri> getAllObservedUris() {
+        List<Uri> uris = new ArrayList<Uri>();
+
+        for(PowerButton button : BUTTONS.values()) {
+            List<Uri> tmp = button.getObservedUris();
+
+            for(Uri uri : tmp) {
+                if(!uris.contains(uri)) {
+                    uris.add(uri);
+                }
+            }
+        }
+
+        return uris;
+    }
+
+    public static void handleOnReceive(Context context, Intent intent) {
+        String action = intent.getAction();
+
+        // cycle through power buttons
+        for(PowerButton button : BUTTONS.values()) {
+            // call "onReceive" on those that matter
+            if(button.getBroadcastIntentFilter().hasAction(action)) {
+                button.onReceive(context, intent);
+            }
+        }
+    }
+
+    public static void handleOnChangeUri(Uri uri) {
+        for(PowerButton button : BUTTONS.values()) {
+            if(button.getObservedUris().contains(uri)) {
+                button.onChangeUri(uri);
+            }
+        }
+    }
 }
