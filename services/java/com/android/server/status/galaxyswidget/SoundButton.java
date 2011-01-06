@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
+import android.os.Vibrator;
 import android.provider.Settings;
 
 public class SoundButton extends PowerButton {
@@ -17,6 +18,11 @@ public class SoundButton extends PowerButton {
     public static final int RINGER_MODE_VIBRATE_ONLY = 2;
     public static final int RINGER_MODE_SOUND_ONLY = 3;
     public static final int RINGER_MODE_SOUND_AND_VIBRATE = 4;
+
+    public static final int VIBRATE_DURATION = 500; // 0.5s
+
+    public static AudioManager AUDIO_MANAGER = null;
+    public static Vibrator VIBRATOR = null;
 
     public SoundButton() { mType = PowerButton.BUTTON_SOUND; }
 
@@ -47,35 +53,43 @@ public class SoundButton extends PowerButton {
     protected void toggleState() {
         Context context = mView.getContext();
         int currentState = getSoundState(context);
-        AudioManager mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
+        // services should be initialized in the last call, but we do this for completeness anyway
+        initServices(context);
 
         switch (currentState) {
         case RINGER_MODE_SOUND_AND_VIBRATE: // go back to silent, no vibrate
             Settings.System.putInt(context.getContentResolver(),Settings.System.VIBRATE_IN_SILENT,0);
-            mAudioManager.
+            AUDIO_MANAGER.
                 setVibrateSetting(AudioManager.VIBRATE_TYPE_RINGER,AudioManager.VIBRATE_SETTING_OFF);
-            mAudioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+            AUDIO_MANAGER.setRingerMode(AudioManager.RINGER_MODE_SILENT);
             break;
         case RINGER_MODE_SOUND_ONLY: // go to sound and vibrate
             Settings.System.putInt(context.getContentResolver(),Settings.System.VIBRATE_IN_SILENT,1);
-            mAudioManager.
+            AUDIO_MANAGER.
                 setVibrateSetting(AudioManager.VIBRATE_TYPE_RINGER,AudioManager.VIBRATE_SETTING_ON);
-            mAudioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+            AUDIO_MANAGER.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+
+            // vibrate so the user knows vibrator is on
+            VIBRATOR.vibrate(VIBRATE_DURATION);
             break;
         case RINGER_MODE_VIBRATE_ONLY: // go to sound
             Settings.System.putInt(context.getContentResolver(),Settings.System.VIBRATE_IN_SILENT,1);
-            mAudioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-            mAudioManager.setVibrateSetting(AudioManager.VIBRATE_TYPE_RINGER,AudioManager.VIBRATE_SETTING_ONLY_SILENT);
+            AUDIO_MANAGER.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+            AUDIO_MANAGER.setVibrateSetting(AudioManager.VIBRATE_TYPE_RINGER,AudioManager.VIBRATE_SETTING_ONLY_SILENT);
             break;
         case RINGER_MODE_SILENT: // go to vibrate
             Settings.System.putInt(context.getContentResolver(),Settings.System.VIBRATE_IN_SILENT,1);
-            mAudioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
-            mAudioManager.setVibrateSetting(AudioManager.VIBRATE_TYPE_RINGER,AudioManager.VIBRATE_SETTING_ONLY_SILENT);
+            AUDIO_MANAGER.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+            AUDIO_MANAGER.setVibrateSetting(AudioManager.VIBRATE_TYPE_RINGER,AudioManager.VIBRATE_SETTING_ONLY_SILENT);
+
+            // vibrate so the user knows vibrator is on
+            VIBRATOR.vibrate(VIBRATE_DURATION);
             break;
         default: // default going to sound
             Settings.System.putInt(context.getContentResolver(),Settings.System.VIBRATE_IN_SILENT,1);
-            mAudioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-            mAudioManager.setVibrateSetting(AudioManager.VIBRATE_TYPE_RINGER,AudioManager.VIBRATE_SETTING_ONLY_SILENT);
+            AUDIO_MANAGER.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+            AUDIO_MANAGER.setVibrateSetting(AudioManager.VIBRATE_TYPE_RINGER,AudioManager.VIBRATE_SETTING_ONLY_SILENT);
             break;
         }
     }
@@ -95,10 +109,11 @@ public class SoundButton extends PowerButton {
     }
 
     private static int getSoundState(Context context) {
-        AudioManager mAudioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+        // ensure our services are initialized
+        initServices(context);
 
-        int ringMode = mAudioManager.getRingerMode();
-        int vibrateMode = mAudioManager.getVibrateSetting(AudioManager.VIBRATE_TYPE_RINGER);
+        int ringMode = AUDIO_MANAGER.getRingerMode();
+        int vibrateMode = AUDIO_MANAGER.getVibrateSetting(AudioManager.VIBRATE_TYPE_RINGER);
 
         if (ringMode == AudioManager.RINGER_MODE_NORMAL && vibrateMode == AudioManager.VIBRATE_SETTING_ON) {
             return RINGER_MODE_SOUND_AND_VIBRATE;
@@ -110,6 +125,15 @@ public class SoundButton extends PowerButton {
             return RINGER_MODE_SILENT;
         } else {
             return RINGER_MODE_UNKNOWN;
+        }
+    }
+
+    public static void initServices(Context context) {
+        if(AUDIO_MANAGER == null) {
+            AUDIO_MANAGER = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        }
+        if(VIBRATOR == null) {
+            VIBRATOR = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         }
     }
 }
