@@ -30,12 +30,12 @@ public class SoundButton extends PowerButton {
     public void updateState() {
         switch (getSoundState(mView.getContext())) {
         case RINGER_MODE_SOUND_AND_VIBRATE:
-                mIcon = R.drawable.stat_ring_on;
+                mIcon = R.drawable.stat_ring_vibrate_on;
                 mState = PowerButton.STATE_ENABLED;
             break;
         case RINGER_MODE_SOUND_ONLY:
                 mIcon = R.drawable.stat_ring_on;
-                mState = PowerButton.STATE_INTERMEDIATE;
+                mState = PowerButton.STATE_ENABLED;
             break;
         case RINGER_MODE_VIBRATE_ONLY:
                 mIcon = R.drawable.stat_vibrate_off;
