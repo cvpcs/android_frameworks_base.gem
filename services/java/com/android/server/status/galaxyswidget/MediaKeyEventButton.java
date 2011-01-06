@@ -18,9 +18,11 @@ public abstract class MediaKeyEventButton extends PowerButton {
 
         // we register our a global playback listener so that our buttons will update when something happens
         if(mView == null) {
-            MediaPlayer.registerGlobalOnPlaybackStateChangedListener(mOnPlaybackStateChangedListener);
-        } else {
+            // view == null means clear config, so unregister our listener
             MediaPlayer.unregisterGlobalOnPlaybackStateChangedListener(mOnPlaybackStateChangedListener);
+        } else {
+            // view isn't null so setting up, register our listener
+            MediaPlayer.registerGlobalOnPlaybackStateChangedListener(mOnPlaybackStateChangedListener);
         }
     }
     protected void sendMediaKeyEvent(int code) {
