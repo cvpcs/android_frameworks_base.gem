@@ -539,6 +539,12 @@ void MediaPlayer::notify(int msg, int ext1, int ext2)
             mSignal.signal();
         }
         break;
+    case MEDIA_PLAYBACK_STARTED:
+        LOGV("playback started");
+        break;
+    case MEDIA_PLAYBACK_PAUSED:
+        LOGV("playback paused");
+        break;
     case MEDIA_PLAYBACK_COMPLETE:
         LOGV("playback complete");
         if (!mLoop) {

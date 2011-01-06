@@ -34,6 +34,7 @@ import android.media.AudioManager;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 import java.lang.ref.WeakReference;
@@ -1212,6 +1213,9 @@ public class MediaPlayer
     private static final int MEDIA_SET_VIDEO_SIZE = 5;
     private static final int MEDIA_ERROR = 100;
     private static final int MEDIA_INFO = 200;
+    // added for playback detecting
+    private static final int MEDIA_PLAYBACK_STARTED = 9001;
+    private static final int MEDIA_PLAYBACK_PAUSED = 9002;
 
     private class EventHandler extends Handler
     {
@@ -1238,6 +1242,12 @@ public class MediaPlayer
                 if (mOnCompletionListener != null)
                     mOnCompletionListener.onCompletion(mMediaPlayer);
                 stayAwake(false);
+
+            case MEDIA_PLAYBACK_STARTED:
+            case MEDIA_PLAYBACK_PAUSED:
+                for(OnPlaybackStateChangedListener listener : mOnPlaybackStateChangedListeners) {
+                    listener.onPlaybackStateChanged(mMediaPlayer);
+                }
                 return;
 
             case MEDIA_BUFFERING_UPDATE:
@@ -1448,6 +1458,38 @@ public class MediaPlayer
     }
 
     private OnVideoSizeChangedListener mOnVideoSizeChangedListener;
+
+    /**
+     * @hide
+     */
+    public interface OnPlaybackStateChangedListener
+    {
+        public void onPlaybackStateChanged(MediaPlayer mp);
+    }
+
+    /**
+     * @hide
+     */
+    public static void registerGlobalOnPlaybackStateChangedListener(OnPlaybackStateChangedListener listener)
+    {
+        if(!mOnPlaybackStateChangedListeners.contains(listener)) {
+            mOnPlaybackStateChangedListeners.add(listener);
+        }
+    }
+
+    /**
+     * @hide
+     */
+    public static void unregisterGlobalOnPlaybackStateChangedListener(OnPlaybackStateChangedListener listener)
+    {
+        int idx = mOnPlaybackStateChangedListeners.indexOf(listener);
+
+        if(idx >= 0) {
+            mOnPlaybackStateChangedListeners.remove(idx);
+        }
+    }
+
+    private static ArrayList<OnPlaybackStateChangedListener> mOnPlaybackStateChangedListeners = new ArrayList<OnPlaybackStateChangedListener>();
 
     /* Do not change these values without updating their counterparts
      * in include/media/mediaplayer.h!

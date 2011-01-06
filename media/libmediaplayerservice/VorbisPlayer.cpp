@@ -430,6 +430,9 @@ int VorbisPlayer::render() {
                 if (mAudioSink->ready()) mAudioSink->pause();
                 mRender = false;
                 audioStarted = false;
+
+                LOGV("send MEDIA_PLAYBACK_PAUSED");
+                sendEvent(MEDIA_PLAYBACK_PAUSED);
             }
 
             // nothing to render, wait for client thread to wake us up
@@ -509,6 +512,9 @@ int VorbisPlayer::render() {
             LOGV("render - starting audio\n");
             mAudioSink->start();
             audioStarted = true;
+
+            LOGV("send MEDIA_PLAYBACK_STARTED");
+            sendEvent(MEDIA_PLAYBACK_STARTED);
         }
     }
 

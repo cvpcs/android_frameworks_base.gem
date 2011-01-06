@@ -464,6 +464,9 @@ int FLACPlayer::render() {
                 if (mAudioSink->ready()) mAudioSink->pause();
                 mRender = false;
                 audioStarted = false;
+
+                LOGV("send MEDIA_PLAYBACK_PAUSED\n");
+                sendEvent(MEDIA_PLAYBACK_PAUSED);
             }
 
             // nothing to render, wait for client thread to wake us up
@@ -492,6 +495,9 @@ int FLACPlayer::render() {
                 LOGV("render - starting audio\n");
                 mAudioSink->start();
                 audioStarted = true;
+
+                LOGV("send MEDIA_PLAYBACK_STARTED\n");
+                sendEvent(MEDIA_PLAYBACK_STARTED);
             }
 
             if (FLAC__stream_decoder_get_state(mDecoder) != FLAC__STREAM_DECODER_END_OF_STREAM) {
