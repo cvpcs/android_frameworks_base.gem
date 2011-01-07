@@ -47,8 +47,6 @@ public abstract class PowerButton {
     public static final String BUTTON_MEDIA_NEXT = "media_next";
     public static final String BUTTON_UNKNOWN = "unknown";
 
-    public static final int DEFAULT_INDICATOR_COLOR = 0xFF99CC33;
-
     private static final Mode MASK_MODE = Mode.SCREEN;
     private static final HashMap<String, PowerButton> BUTTONS = new HashMap<String, PowerButton>();
     static {
@@ -117,7 +115,7 @@ public abstract class PowerButton {
 			updateImageView(buttonIcon, mIcon);
 
 			int sColorMaskBase = Settings.System.getInt(context.getContentResolver(),
-				Settings.System.GALAXY_S_WIDGET_COLOR, DEFAULT_INDICATOR_COLOR);
+				Settings.System.GALAXY_S_WIDGET_COLOR, 0xFF99CC33);
 			int sColorMaskOn    = (sColorMaskBase & 0x00FFFFFF) | 0xC0000000;
 			int sColorMaskOff   = (sColorMaskBase & 0x00FFFFFF) | 0x30000000;
 			int sColorMaskInter = (sColorMaskBase & 0x00FFFFFF) | 0x70000000;
