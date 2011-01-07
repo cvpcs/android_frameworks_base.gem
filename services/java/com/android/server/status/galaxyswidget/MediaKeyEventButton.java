@@ -52,6 +52,7 @@ public abstract class MediaKeyEventButton extends PowerButton {
     private MediaPlayer.OnPlaybackStateChangedListener mOnPlaybackStateChangedListener = new MediaPlayer.OnPlaybackStateChangedListener() {
             public void onPlaybackStateChanged(MediaPlayer mp) {
                 updateState();
+                updateView();
             }
         };
 }
