@@ -100,6 +100,7 @@ public class SoundButton extends PowerButton {
         // to catch it anyway so the ringer status is updated if changed externally :D
         IntentFilter filter = new IntentFilter();
         filter.addAction(AudioManager.RINGER_MODE_CHANGED_ACTION);
+        filter.addAction(AudioManager.VIBRATE_SETTING_CHANGED_ACTION);
         return filter;
     }
 
