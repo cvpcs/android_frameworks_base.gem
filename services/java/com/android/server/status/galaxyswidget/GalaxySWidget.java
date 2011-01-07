@@ -80,6 +80,9 @@ public class GalaxySWidget extends LinearLayout {
 
         // initial setup of our widget
         setupWidget();
+
+        // set our visibility
+        updateVisibility();
     }
 
     public void setupWidget() {
@@ -136,6 +139,17 @@ public class GalaxySWidget extends LinearLayout {
         }
     }
 
+    public void updateVisibility() {
+        // now check if we need to display the widget still
+        boolean displayPowerWidget = Settings.System.getInt(mContext.getContentResolver(),
+                   Settings.System.DISPLAY_GALAXY_S_WIDGET, 0) != 0;
+        if(!displayPowerWidget) {
+            setVisibility(View.GONE);
+        } else {
+            setVisibility(View.VISIBLE);
+        }
+    }
+
     // our own broadcast receiver :D
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
@@ -185,15 +199,9 @@ public class GalaxySWidget extends LinearLayout {
             // first check if our widget buttons have changed
             if(uri.equals(Settings.System.getUriFor(Settings.System.GALAXY_S_WIDGET_BUTTONS))) {
                 setupWidget();
-            }
-
-            // now check if we need to display the widget still
-            boolean displayPowerWidget = Settings.System.getInt(mContext.getContentResolver(),
-                       Settings.System.DISPLAY_GALAXY_S_WIDGET, 0) == 1;
-            if(!displayPowerWidget) {
-                setVisibility(View.GONE);
-            } else {
-                setVisibility(View.VISIBLE);
+            // now check if we change visibility
+            } else if(uri.equals(Settings.System.getUriFor(Settings.System.DISPLAY_GALAXY_S_WIDGET))) {
+                updateVisibility();
             }
 
             // do whatever the individual buttons must
