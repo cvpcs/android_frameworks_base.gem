@@ -54,6 +54,10 @@ public class LockScreenButton extends PowerButton {
                 }
             }
         }
+
+        // we're handling this, so just update our buttons now
+        // this is UGLY, do it better later >.>
+        update();
     }
 
     public static LockScreenButton getInstance() {
