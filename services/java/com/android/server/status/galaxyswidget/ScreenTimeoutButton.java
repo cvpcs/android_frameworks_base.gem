@@ -4,9 +4,13 @@ import com.android.internal.R;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.provider.Settings;
 import android.view.Gravity;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ScreenTimeoutButton extends PowerButton {
 
@@ -22,6 +26,12 @@ public class ScreenTimeoutButton extends PowerButton {
             1800000}; // 30m
 
     private static ScreenTimeoutButton OWN_BUTTON = null;
+    private static Toast TOAST = null;
+
+    private static final List<Uri> OBSERVED_URIS = new ArrayList<Uri>();
+    static {
+        OBSERVED_URIS.add(Settings.System.getUriFor(Settings.System.SCREEN_OFF_TIMEOUT));
+    }
 
     public ScreenTimeoutButton() { mType = BUTTON_SCREENTIMEOUT; }
 
@@ -65,12 +75,23 @@ public class ScreenTimeoutButton extends PowerButton {
                 context.getContentResolver(),
                 Settings.System.SCREEN_OFF_TIMEOUT, newtimeout);
 
+        // create our toast
+        if(TOAST == null) {
+            TOAST = Toast.makeText(context, "", Toast.LENGTH_LONG);
+        }
+
+        // cancel any previous toast
+        TOAST.cancel();
+
         // inform users of how long the timeout is now
-        Toast msg = Toast.makeText(context,
-                "Screen timeout set to: " + timeoutToString(newtimeout),
-                Toast.LENGTH_LONG);
-        msg.setGravity(Gravity.CENTER, msg.getXOffset() / 2, msg.getYOffset() / 2);
-        msg.show();
+        TOAST.setText("Screen timeout set to: " + timeoutToString(newtimeout));
+        TOAST.setGravity(Gravity.CENTER, TOAST.getXOffset() / 2, TOAST.getYOffset() / 2);
+        TOAST.show();
+    }
+
+    @Override
+    protected List<Uri> getObservedUris() {
+        return OBSERVED_URIS;
     }
 
     public static ScreenTimeoutButton getInstance() {
@@ -92,14 +113,12 @@ public class ScreenTimeoutButton extends PowerButton {
             };
 
         // default to however many seconds we have
-        String sTimeout = (timeout / 1000) + " " + tags[0];
+        int tmp = (timeout / 1000);
+        String sTimeout = tmp + " " + tags[0];
 
-        for(int i = 1; i < tags.length; i++) {
-            int tmp = (timeout / 1000) / (60 * i);
-
-            if(tmp < 60) {
-                sTimeout = tmp + " " + tags[i];
-            }
+        for(int i = 1; i < tags.length && tmp >= 60; i++) {
+            tmp /= (60 * i);
+            sTimeout = tmp + " " + tags[i];
         }
 
         return sTimeout;
