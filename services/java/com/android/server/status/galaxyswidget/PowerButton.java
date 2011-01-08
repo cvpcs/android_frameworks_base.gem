@@ -9,6 +9,8 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.graphics.PorterDuff.Mode;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Message;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.provider.Settings;
@@ -75,6 +77,44 @@ public abstract class PowerButton {
     protected View mView;
     protected String mType = BUTTON_UNKNOWN;
 
+    // we use this to ensure we update our views on the UI thread
+    private Handler mViewUpdateHandler = new Handler() {
+            public void handleMessage(Message msg) {
+                // this is only used to update the view, so do it
+                if(mView != null) {
+                    Context context = mView.getContext();
+                    Resources res = context.getResources();
+                    int buttonLayer = R.id.galaxy_s_widget_button;
+                    int buttonIcon = R.id.galaxy_s_widget_button_image;
+                    int buttonState = R.id.galaxy_s_widget_button_indic;
+
+                    updateImageView(buttonIcon, mIcon);
+
+                    int sColorMaskBase = Settings.System.getInt(context.getContentResolver(),
+                            Settings.System.GALAXY_S_WIDGET_COLOR, 0xFF99CC33);
+                    int sColorMaskOn    = (sColorMaskBase & 0x00FFFFFF) | 0xC0000000;
+                    int sColorMaskOff   = (sColorMaskBase & 0x00FFFFFF) | 0x30000000;
+                    int sColorMaskInter = (sColorMaskBase & 0x00FFFFFF) | 0x70000000;
+
+                    /* Button State */
+                    switch(mState) {
+                        case STATE_ENABLED:
+                            updateImageView(buttonState,
+                                    res.getDrawable(R.drawable.stat_bgon_custom, sColorMaskOn, MASK_MODE));
+                            break;
+                        case STATE_DISABLED:
+                            updateImageView(buttonState,
+                                    res.getDrawable(R.drawable.stat_bgon_custom, sColorMaskOff, MASK_MODE));
+                            break;
+                        default:
+                            updateImageView(buttonState,
+                                    res.getDrawable(R.drawable.stat_bgon_custom, sColorMaskInter, MASK_MODE));
+                            break;
+                    }
+                }
+            }
+        };
+
     protected abstract void updateState();
     protected abstract void toggleState();
 
@@ -110,37 +150,7 @@ public abstract class PowerButton {
     }
 
     public void updateView() {
-        if(mView != null) {
-            Context context = mView.getContext();
-            Resources res = context.getResources();
-            int buttonLayer = R.id.galaxy_s_widget_button;
-			int buttonIcon = R.id.galaxy_s_widget_button_image;
-			int buttonState = R.id.galaxy_s_widget_button_indic;
-
-			updateImageView(buttonIcon, mIcon);
-
-			int sColorMaskBase = Settings.System.getInt(context.getContentResolver(),
-				Settings.System.GALAXY_S_WIDGET_COLOR, 0xFF99CC33);
-			int sColorMaskOn    = (sColorMaskBase & 0x00FFFFFF) | 0xC0000000;
-			int sColorMaskOff   = (sColorMaskBase & 0x00FFFFFF) | 0x30000000;
-			int sColorMaskInter = (sColorMaskBase & 0x00FFFFFF) | 0x70000000;
-
-			/* Button State */
-			switch(mState) {
-			case STATE_ENABLED:
-				updateImageView(buttonState,
-					 res.getDrawable(R.drawable.stat_bgon_custom, sColorMaskOn, MASK_MODE));
-				break;
-			case STATE_DISABLED:
-				updateImageView(buttonState,
-					 res.getDrawable(R.drawable.stat_bgon_custom, sColorMaskOff, MASK_MODE));
-				break;
-			default:
-				updateImageView(buttonState,
-					 res.getDrawable(R.drawable.stat_bgon_custom, sColorMaskInter, MASK_MODE));
-				break;
-			}
-        }
+        mViewUpdateHandler.sendEmptyMessage(0);
     }
 
     private void updateImageView(int id, int resId) {
