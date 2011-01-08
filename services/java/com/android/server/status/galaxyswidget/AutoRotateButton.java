@@ -3,11 +3,20 @@ package com.android.server.status.galaxyswidget;
 import com.android.internal.R;
 
 import android.content.Context;
+import android.net.Uri;
 import android.provider.Settings;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AutoRotateButton extends PowerButton {
 
     private static AutoRotateButton OWN_BUTTON = null;
+
+    private static final List<Uri> OBSERVED_URIS = new ArrayList<Uri>();
+    static {
+        OBSERVED_URIS.add(Settings.System.getUriFor(Settings.System.ACCELEROMETER_ROTATION));
+    }
 
     public AutoRotateButton() { mType = BUTTON_AUTOROTATE; }
 
@@ -34,6 +43,11 @@ public class AutoRotateButton extends PowerButton {
                     context.getContentResolver(),
                     Settings.System.ACCELEROMETER_ROTATION, 0);
         }
+    }
+
+    @Override
+    protected List<Uri> getObservedUris() {
+        return OBSERVED_URIS;
     }
 
     public static AutoRotateButton getInstance() {

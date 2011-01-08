@@ -16,21 +16,26 @@ public abstract class MediaKeyEventButton extends PowerButton {
 
     private static AudioManager AUDIO_MANAGER = null;
 
+    private boolean mListenerRegistered = false;
+
     @Override
     public void setupButton(View view) {
         super.setupButton(view);
 
         // we register our a global playback listener so that our buttons will update when something happens
-        if(mView == null) {
+        if(mView == null && mListenerRegistered) {
             // view == null means clear config, so unregister our listener
             Log.i(TAG, "Unregistering playback state listener");
             MediaPlayer.unregisterGlobalOnPlaybackStateChangedListener(mOnPlaybackStateChangedListener);
-        } else {
+            mListenerRegistered = false;
+        } else if(mView != null && !mListenerRegistered) {
             // view isn't null so setting up, register our listener
             Log.i(TAG, "Registering playback state listener");
             MediaPlayer.registerGlobalOnPlaybackStateChangedListener(mOnPlaybackStateChangedListener);
+            mListenerRegistered = true;
         }
     }
+
     protected void sendMediaKeyEvent(int code) {
         Context context = mView.getContext();
         long eventtime = SystemClock.uptimeMillis();

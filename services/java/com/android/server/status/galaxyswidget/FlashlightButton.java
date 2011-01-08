@@ -8,6 +8,7 @@ import android.os.FileObserver;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.Toast;
 
 import java.io.File;
@@ -33,6 +34,7 @@ public class FlashlightButton extends PowerButton {
     }
 
     private FileObserver mFlashlightObserver;
+    private boolean mFlashlightObserved = false;
 
     public FlashlightButton() {
         mType = BUTTON_FLASHLIGHT;
@@ -46,7 +48,21 @@ public class FlashlightButton extends PowerButton {
                         update();
                     }
                 };
+        }
+    }
+
+    @Override
+    public void setupButton(View view) {
+        super.setupButton(view);
+
+        if(mView == null && mFlashlightObserved) {
+            Log.i(TAG, "Unregistering flashlight file listener");
+            mFlashlightObserver.stopWatching();
+            mFlashlightObserved = false;
+        } else if(mView != null && !mFlashlightObserved) {
+            Log.i(TAG, "Registering flashlight file listener");
             mFlashlightObserver.startWatching();
+            mFlashlightObserved = true;
         }
     }
 
