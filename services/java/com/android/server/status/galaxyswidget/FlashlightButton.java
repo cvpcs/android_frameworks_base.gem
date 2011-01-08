@@ -4,6 +4,7 @@ import com.android.internal.R;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.os.FileObserver;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
@@ -31,10 +32,25 @@ public class FlashlightButton extends PowerButton {
         }
     }
 
-    public FlashlightButton() { mType = BUTTON_FLASHLIGHT; }
+    private FileObserver mFlashlightObserver;
+
+    public FlashlightButton() {
+        mType = BUTTON_FLASHLIGHT;
+
+        // only do this if the flashlight exists
+        if(FLASHLIGHT != null && FLASHLIGHT.exists()) {
+            mFlashlightObserver = new FileObserver(FLASHLIGHT.getAbsolutePath()) {
+                    public void onEvent(int event, String path) {
+                        // update state/view if something happened
+                        update();
+                    }
+                };
+            mFlashlightObserver.startWatching();
+        }
+    }
 
     @Override
-    public void updateState() {
+    protected void updateState() {
         if(getFlashlightEnabled()) {
             mIcon = com.android.internal.R.drawable.stat_flashlight_on;
             mState = STATE_ENABLED;

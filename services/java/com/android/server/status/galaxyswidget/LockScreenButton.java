@@ -20,7 +20,7 @@ public class LockScreenButton extends PowerButton {
     public LockScreenButton() { mType = BUTTON_LOCKSCREEN; }
 
     @Override
-    public void updateState() {
+    protected void updateState() {
         getState();
         if (LOCK_SCREEN_STATE == null) {
             mIcon = R.drawable.stat_lock_screen_off;

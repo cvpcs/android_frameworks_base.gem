@@ -14,7 +14,7 @@ public class GPSButton extends PowerButton {
     public GPSButton() { mType = BUTTON_GPS; }
 
     @Override
-    public void updateState() {
+    protected void updateState() {
         if(getGpsState(mView.getContext())) {
             mIcon = com.android.internal.R.drawable.stat_gps_on;
             mState = STATE_ENABLED;

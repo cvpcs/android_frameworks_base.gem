@@ -27,7 +27,7 @@ public class SoundButton extends PowerButton {
     public SoundButton() { mType = BUTTON_SOUND; }
 
     @Override
-    public void updateState() {
+    protected void updateState() {
         switch (getSoundState(mView.getContext())) {
         case RINGER_MODE_SOUND_AND_VIBRATE:
                 mIcon = R.drawable.stat_ring_vibrate_on;

@@ -49,7 +49,7 @@ public class BrightnessButton extends PowerButton {
     public BrightnessButton() { mType = BUTTON_BRIGHTNESS; }
 
     @Override
-    public void updateState() {
+    protected void updateState() {
         Context context = mView.getContext();
         if (isBrightnessSetToAutomatic(context)) {
             mIcon = R.drawable.stat_brightness_auto;

@@ -134,8 +134,7 @@ public class GalaxySWidget extends LinearLayout {
 
     public void updateWidget() {
         for(PowerButton button : mButtons.values()) {
-            button.updateState();
-            button.updateView();
+            button.update();
         }
     }
 

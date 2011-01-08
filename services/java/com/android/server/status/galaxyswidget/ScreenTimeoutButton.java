@@ -26,7 +26,7 @@ public class ScreenTimeoutButton extends PowerButton {
     public ScreenTimeoutButton() { mType = BUTTON_SCREENTIMEOUT; }
 
     @Override
-    public void updateState() {
+    protected void updateState() {
         int timeout=getScreenTtimeout(mView.getContext());
 
         if (timeout <= SCREEN_TIMEOUT_LT) {

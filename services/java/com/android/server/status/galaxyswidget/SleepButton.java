@@ -14,7 +14,7 @@ public class SleepButton extends PowerButton {
     public SleepButton() { mType = BUTTON_SLEEP; }
 
     @Override
-    public void updateState() {
+    protected void updateState() {
         mIcon = com.android.internal.R.drawable.stat_sleep;
         mState = STATE_DISABLED;
     }

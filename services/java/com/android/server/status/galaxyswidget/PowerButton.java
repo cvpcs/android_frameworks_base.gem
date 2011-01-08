@@ -75,8 +75,13 @@ public abstract class PowerButton {
     protected View mView;
     protected String mType = BUTTON_UNKNOWN;
 
-    public abstract void updateState();
+    protected abstract void updateState();
     protected abstract void toggleState();
+
+    public void update() {
+        updateState();
+        updateView();
+    }
 
     public void onReceive(Context context, Intent intent) {
         // do nothing as a standard, override this if the button needs to respond

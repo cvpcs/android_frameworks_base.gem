@@ -23,7 +23,7 @@ public class AirplaneButton extends PowerButton {
     public AirplaneButton() { mType = BUTTON_AIRPLANE; }
 
     @Override
-    public void updateState() {
+    protected void updateState() {
         if (getState(mView.getContext())) {
             mIcon = R.drawable.stat_airplane_on;
             mState = STATE_ENABLED;

@@ -102,7 +102,7 @@ public class WifiApButton extends PowerButton {
     public WifiApButton() { mType = BUTTON_WIFIAP; }
 
     @Override
-    public void updateState() {
+    protected void updateState() {
         mState = sWifiApState.getTriState(mView.getContext());
         switch (mState) {
         case STATE_DISABLED:

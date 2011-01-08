@@ -36,7 +36,7 @@ public class NetworkModeButton extends PowerButton{
     public NetworkModeButton() { mType = BUTTON_NETWORKMODE; }
 
     @Override
-    public void updateState() {
+    protected void updateState() {
         Context context = mView.getContext();
         NETWORK_MODE = get2G3G(context);
         mState = networkModeToState(context);

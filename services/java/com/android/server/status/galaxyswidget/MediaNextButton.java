@@ -11,7 +11,7 @@ public class MediaNextButton extends MediaKeyEventButton {
     public MediaNextButton() { mType = BUTTON_MEDIA_NEXT; }
 
     @Override
-    public void updateState() {
+    protected void updateState() {
         mIcon = com.android.internal.R.drawable.stat_media_next;
         if(getAudioManager(mView.getContext()).isMusicActive()) {
             mState = STATE_ENABLED;

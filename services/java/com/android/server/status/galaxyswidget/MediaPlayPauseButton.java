@@ -11,7 +11,7 @@ public class MediaPlayPauseButton extends MediaKeyEventButton {
     public MediaPlayPauseButton() { mType = BUTTON_MEDIA_PLAY_PAUSE; }
 
     @Override
-    public void updateState() {
+    protected void updateState() {
         if(getAudioManager(mView.getContext()).isMusicActive()) {
             mIcon = com.android.internal.R.drawable.stat_media_pause;
             mState = STATE_ENABLED;

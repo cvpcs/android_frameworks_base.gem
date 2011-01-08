@@ -11,7 +11,7 @@ public class MediaPreviousButton extends MediaKeyEventButton {
     public MediaPreviousButton() { mType = BUTTON_MEDIA_PREVIOUS; }
 
     @Override
-    public void updateState() {
+    protected void updateState() {
         mIcon = com.android.internal.R.drawable.stat_media_previous;
         if(getAudioManager(mView.getContext()).isMusicActive()) {
             mState = STATE_ENABLED;

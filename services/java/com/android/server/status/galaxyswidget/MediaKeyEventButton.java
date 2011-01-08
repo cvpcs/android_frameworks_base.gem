@@ -7,10 +7,13 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 
 public abstract class MediaKeyEventButton extends PowerButton {
+    private static final String TAG = "MediaKeyEventButton";
+
     private static AudioManager AUDIO_MANAGER = null;
 
     @Override
@@ -20,9 +23,11 @@ public abstract class MediaKeyEventButton extends PowerButton {
         // we register our a global playback listener so that our buttons will update when something happens
         if(mView == null) {
             // view == null means clear config, so unregister our listener
+            Log.i(TAG, "Unregistering playback state listener");
             MediaPlayer.unregisterGlobalOnPlaybackStateChangedListener(mOnPlaybackStateChangedListener);
         } else {
             // view isn't null so setting up, register our listener
+            Log.i(TAG, "Registering playback state listener");
             MediaPlayer.registerGlobalOnPlaybackStateChangedListener(mOnPlaybackStateChangedListener);
         }
     }
@@ -51,8 +56,8 @@ public abstract class MediaKeyEventButton extends PowerButton {
 
     private MediaPlayer.OnPlaybackStateChangedListener mOnPlaybackStateChangedListener = new MediaPlayer.OnPlaybackStateChangedListener() {
             public void onPlaybackStateChanged(MediaPlayer mp) {
-                updateState();
-                updateView();
+                Log.i(TAG, "Playback state change received, updating state/view");
+                update();
             }
         };
 }

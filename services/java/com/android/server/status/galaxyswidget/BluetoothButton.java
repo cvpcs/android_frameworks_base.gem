@@ -82,7 +82,7 @@ public class BluetoothButton extends PowerButton {
     public BluetoothButton() { mType = BUTTON_BLUETOOTH; }
 
     @Override
-    public void updateState() {
+    protected void updateState() {
         mState = sBluetoothState.getTriState(mView.getContext());
         switch (mState) {
         case STATE_DISABLED:
