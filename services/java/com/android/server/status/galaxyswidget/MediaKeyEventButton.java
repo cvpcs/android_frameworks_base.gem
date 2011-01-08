@@ -4,6 +4,7 @@ import com.android.internal.R;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.SystemClock;
@@ -16,24 +17,11 @@ public abstract class MediaKeyEventButton extends PowerButton {
 
     private static AudioManager AUDIO_MANAGER = null;
 
-    private boolean mListenerRegistered = false;
-
     @Override
-    public void setupButton(View view) {
-        super.setupButton(view);
-
-        // we register our a global playback listener so that our buttons will update when something happens
-        if(mView == null && mListenerRegistered) {
-            // view == null means clear config, so unregister our listener
-            Log.i(TAG, "Unregistering playback state listener");
-            MediaPlayer.unregisterGlobalOnPlaybackStateChangedListener(mOnPlaybackStateChangedListener);
-            mListenerRegistered = false;
-        } else if(mView != null && !mListenerRegistered) {
-            // view isn't null so setting up, register our listener
-            Log.i(TAG, "Registering playback state listener");
-            MediaPlayer.registerGlobalOnPlaybackStateChangedListener(mOnPlaybackStateChangedListener);
-            mListenerRegistered = true;
-        }
+    protected IntentFilter getBroadcastIntentFilter() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(MediaPlayer.MEDIA_PLAYBACK_STATE_CHANGED_ACTION);
+        return filter;
     }
 
     protected void sendMediaKeyEvent(int code) {
@@ -58,11 +46,4 @@ public abstract class MediaKeyEventButton extends PowerButton {
 
         return AUDIO_MANAGER;
     }
-
-    private MediaPlayer.OnPlaybackStateChangedListener mOnPlaybackStateChangedListener = new MediaPlayer.OnPlaybackStateChangedListener() {
-            public void onPlaybackStateChanged(MediaPlayer mp) {
-                Log.i(TAG, "Playback state change received, updating state/view");
-                update();
-            }
-        };
 }
