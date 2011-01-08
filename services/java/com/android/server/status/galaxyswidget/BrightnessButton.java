@@ -38,7 +38,6 @@ public class BrightnessButton extends PowerButton {
             (int) (Power.BRIGHTNESS_ON * 0.75f)};
 
     private static Boolean SUPPORTS_AUTO_BACKLIGHT=null;
-    private static BrightnessButton OWN_BUTTON = null;
 
     private static final List<Uri> OBSERVED_URIS = new ArrayList<Uri>();
     static {
@@ -108,11 +107,6 @@ public class BrightnessButton extends PowerButton {
     @Override
     protected List<Uri> getObservedUris() {
         return OBSERVED_URIS;
-    }
-
-    public static BrightnessButton getInstance() {
-        if (OWN_BUTTON == null) OWN_BUTTON = new BrightnessButton();
-        return OWN_BUTTON;
     }
 
     private static int getNextBrightnessValue(Context context) {

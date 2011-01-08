@@ -18,8 +18,6 @@ import java.io.FileWriter;
 public class FlashlightButton extends PowerButton {
     private static final String TAG = "FlashlightButton";
 
-    private static FlashlightButton OWN_BUTTON = null;
-
     private static boolean runTimer = false;
 
     private static final File SPOTLIGHT_FILE = new File("/sys/class/leds/spotlight/brightness");
@@ -52,7 +50,7 @@ public class FlashlightButton extends PowerButton {
     }
 
     @Override
-    public void setupButton(View view) {
+    protected void setupButton(View view) {
         super.setupButton(view);
 
         if(mView == null && mFlashlightObserved) {
@@ -90,11 +88,6 @@ public class FlashlightButton extends PowerButton {
         }
 
         setFlashlightEnabled(!getFlashlightEnabled());
-    }
-
-    public static FlashlightButton getInstance() {
-        if (OWN_BUTTON==null) OWN_BUTTON = new FlashlightButton();
-        return OWN_BUTTON;
     }
 
     private static boolean getFlashlightEnabled() {

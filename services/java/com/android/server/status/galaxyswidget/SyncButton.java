@@ -12,8 +12,6 @@ import android.view.View;
 public class SyncButton extends PowerButton {
     private static final String TAG = "SyncButton";
 
-    private static SyncButton OWN_BUTTON = null;
-
     public SyncButton() { mType = BUTTON_SYNC; }
 
     private SyncStatusObserver mSyncObserver = new SyncStatusObserver() {
@@ -25,7 +23,7 @@ public class SyncButton extends PowerButton {
     private Object mSyncObserverHandle = null;
 
     @Override
-    public void setupButton(View view) {
+    protected void setupButton(View view) {
         super.setupButton(view);
 
         if(mView == null && mSyncObserverHandle != null) {
@@ -93,10 +91,4 @@ public class SyncButton extends PowerButton {
         boolean sync = ContentResolver.getMasterSyncAutomatically();
         return backgroundData && sync;
     }
-
-    public static SyncButton getInstance() {
-        if (OWN_BUTTON == null) OWN_BUTTON = new SyncButton();
-        return OWN_BUTTON;
-    }
-
 }

@@ -13,8 +13,6 @@ import java.util.List;
 
 public class AirplaneButton extends PowerButton {
 
-    private static AirplaneButton OWN_BUTTON = null;
-
     private static final List<Uri> OBSERVED_URIS = new ArrayList<Uri>();
     static {
         OBSERVED_URIS.add(Settings.System.getUriFor(Settings.System.AIRPLANE_MODE_ON));
@@ -48,11 +46,6 @@ public class AirplaneButton extends PowerButton {
     @Override
     protected List<Uri> getObservedUris() {
         return OBSERVED_URIS;
-    }
-
-    public static AirplaneButton getInstance() {
-        if (OWN_BUTTON==null) OWN_BUTTON = new AirplaneButton();
-        return OWN_BUTTON;
     }
 
     private static boolean getState(Context context) {

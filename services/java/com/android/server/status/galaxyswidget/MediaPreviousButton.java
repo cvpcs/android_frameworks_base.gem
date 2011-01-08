@@ -6,8 +6,6 @@ import android.content.Context;
 import android.view.KeyEvent;
 
 public class MediaPreviousButton extends MediaKeyEventButton {
-    private static MediaPreviousButton OWN_BUTTON = null;
-
     public MediaPreviousButton() { mType = BUTTON_MEDIA_PREVIOUS; }
 
     @Override
@@ -23,10 +21,5 @@ public class MediaPreviousButton extends MediaKeyEventButton {
     @Override
     protected void toggleState() {
         sendMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PREVIOUS);
-    }
-
-    public static MediaPreviousButton getInstance() {
-        if (OWN_BUTTON==null) OWN_BUTTON = new MediaPreviousButton();
-        return OWN_BUTTON;
     }
 }

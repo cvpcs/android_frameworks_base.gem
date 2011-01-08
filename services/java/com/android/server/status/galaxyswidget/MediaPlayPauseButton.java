@@ -6,8 +6,6 @@ import android.content.Context;
 import android.view.KeyEvent;
 
 public class MediaPlayPauseButton extends MediaKeyEventButton {
-    private static MediaPlayPauseButton OWN_BUTTON = null;
-
     public MediaPlayPauseButton() { mType = BUTTON_MEDIA_PLAY_PAUSE; }
 
     @Override
@@ -24,10 +22,5 @@ public class MediaPlayPauseButton extends MediaKeyEventButton {
     @Override
     protected void toggleState() {
         sendMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
-    }
-
-    public static MediaPlayPauseButton getInstance() {
-        if (OWN_BUTTON==null) OWN_BUTTON = new MediaPlayPauseButton();
-        return OWN_BUTTON;
     }
 }

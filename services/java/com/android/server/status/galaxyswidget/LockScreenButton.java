@@ -13,7 +13,6 @@ import android.widget.Toast;
 public class LockScreenButton extends PowerButton {
 
     private static Boolean LOCK_SCREEN_STATE = null;
-    private static LockScreenButton OWN_BUTTON = null;
 
     private KeyguardLock mLock = null;
 
@@ -58,11 +57,6 @@ public class LockScreenButton extends PowerButton {
         // we're handling this, so just update our buttons now
         // this is UGLY, do it better later >.>
         update();
-    }
-
-    public static LockScreenButton getInstance() {
-        if (OWN_BUTTON==null) OWN_BUTTON = new LockScreenButton();
-        return OWN_BUTTON;
     }
 
     private KeyguardLock getLock(Context context) {

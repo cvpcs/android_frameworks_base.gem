@@ -9,8 +9,6 @@ import android.provider.Settings;
 
 public class GPSButton extends PowerButton {
 
-    private static GPSButton OWN_BUTTON = null;
-
     public GPSButton() { mType = BUTTON_GPS; }
 
     @Override
@@ -31,11 +29,6 @@ public class GPSButton extends PowerButton {
         boolean enabled = getGpsState(context);
         Settings.Secure.setLocationProviderEnabled(resolver,
                 LocationManager.GPS_PROVIDER, !enabled);
-    }
-
-    public static GPSButton getInstance() {
-        if (OWN_BUTTON==null) OWN_BUTTON = new GPSButton();
-        return OWN_BUTTON;
     }
 
     private static boolean getGpsState(Context context) {

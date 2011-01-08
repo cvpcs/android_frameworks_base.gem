@@ -11,6 +11,7 @@ import android.graphics.PorterDuff.Mode;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.provider.Settings;
@@ -22,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class PowerButton {
+    public static final String TAG = "PowerButton";
+
     public static final int STATE_ENABLED = 1;
     public static final int STATE_DISABLED = 2;
     public static final int STATE_TURNING_ON = 3;
@@ -50,27 +53,31 @@ public abstract class PowerButton {
     public static final String BUTTON_UNKNOWN = "unknown";
 
     private static final Mode MASK_MODE = Mode.SCREEN;
-    private static final HashMap<String, PowerButton> BUTTONS = new HashMap<String, PowerButton>();
+
+    // this is a list of all of our buttons and their corresponding classes
+    private static final HashMap<String, Class<? extends PowerButton>> BUTTONS = new HashMap<String, Class<? extends PowerButton>>();
     static {
-        BUTTONS.put(BUTTON_WIFI, WifiButton.getInstance());
-        BUTTONS.put(BUTTON_GPS, GPSButton.getInstance());
-        BUTTONS.put(BUTTON_BLUETOOTH, BluetoothButton.getInstance());
-        BUTTONS.put(BUTTON_BRIGHTNESS, BrightnessButton.getInstance());
-        BUTTONS.put(BUTTON_SOUND, SoundButton.getInstance());
-        BUTTONS.put(BUTTON_SYNC, SyncButton.getInstance());
-        BUTTONS.put(BUTTON_WIFIAP, WifiApButton.getInstance());
-        BUTTONS.put(BUTTON_SCREENTIMEOUT, ScreenTimeoutButton.getInstance());
-        BUTTONS.put(BUTTON_MOBILEDATA, MobileDataButton.getInstance());
-        BUTTONS.put(BUTTON_LOCKSCREEN, LockScreenButton.getInstance());
-        BUTTONS.put(BUTTON_NETWORKMODE, NetworkModeButton.getInstance());
-        BUTTONS.put(BUTTON_AUTOROTATE, AutoRotateButton.getInstance());
-        BUTTONS.put(BUTTON_AIRPLANE, AirplaneButton.getInstance());
-        BUTTONS.put(BUTTON_FLASHLIGHT, FlashlightButton.getInstance());
-        BUTTONS.put(BUTTON_SLEEP, SleepButton.getInstance());
-        BUTTONS.put(BUTTON_MEDIA_PLAY_PAUSE, MediaPlayPauseButton.getInstance());
-        BUTTONS.put(BUTTON_MEDIA_PREVIOUS, MediaPreviousButton.getInstance());
-        BUTTONS.put(BUTTON_MEDIA_NEXT, MediaNextButton.getInstance());
+        BUTTONS.put(BUTTON_WIFI, WifiButton.class);
+        BUTTONS.put(BUTTON_GPS, GPSButton.class);
+        BUTTONS.put(BUTTON_BLUETOOTH, BluetoothButton.class);
+        BUTTONS.put(BUTTON_BRIGHTNESS, BrightnessButton.class);
+        BUTTONS.put(BUTTON_SOUND, SoundButton.class);
+        BUTTONS.put(BUTTON_SYNC, SyncButton.class);
+        BUTTONS.put(BUTTON_WIFIAP, WifiApButton.class);
+        BUTTONS.put(BUTTON_SCREENTIMEOUT, ScreenTimeoutButton.class);
+        BUTTONS.put(BUTTON_MOBILEDATA, MobileDataButton.class);
+        BUTTONS.put(BUTTON_LOCKSCREEN, LockScreenButton.class);
+        BUTTONS.put(BUTTON_NETWORKMODE, NetworkModeButton.class);
+        BUTTONS.put(BUTTON_AUTOROTATE, AutoRotateButton.class);
+        BUTTONS.put(BUTTON_AIRPLANE, AirplaneButton.class);
+        BUTTONS.put(BUTTON_FLASHLIGHT, FlashlightButton.class);
+        BUTTONS.put(BUTTON_SLEEP, SleepButton.class);
+        BUTTONS.put(BUTTON_MEDIA_PLAY_PAUSE, MediaPlayPauseButton.class);
+        BUTTONS.put(BUTTON_MEDIA_PREVIOUS, MediaPreviousButton.class);
+        BUTTONS.put(BUTTON_MEDIA_NEXT, MediaNextButton.class);
     }
+    // this is a list of our currently loaded buttons
+    private static final HashMap<String, PowerButton> BUTTONS_LOADED = new HashMap<String, PowerButton>();
 
     protected int mIcon;
     protected int mState;
@@ -118,17 +125,17 @@ public abstract class PowerButton {
     protected abstract void updateState();
     protected abstract void toggleState();
 
-    public void update() {
+    protected void update() {
         updateState();
         updateView();
     }
 
-    public void onReceive(Context context, Intent intent) {
+    protected void onReceive(Context context, Intent intent) {
         // do nothing as a standard, override this if the button needs to respond
         // to broadcast events from the StatusBarService broadcast receiver
     }
 
-    public void onChangeUri(Uri uri) {
+    protected void onChangeUri(Uri uri) {
         // do nothing as a standard, override this if the button needs to respond
         // to a changed setting
     }
@@ -141,7 +148,7 @@ public abstract class PowerButton {
         return new ArrayList<Uri>();
     }
 
-    public void setupButton(View view) {
+    protected void setupButton(View view) {
         mView = view;
         if(mView != null) {
             mView.setTag(mType);
@@ -149,7 +156,7 @@ public abstract class PowerButton {
         }
     }
 
-    public void updateView() {
+    protected void updateView() {
         mViewUpdateHandler.sendEmptyMessage(0);
     }
 
@@ -168,7 +175,7 @@ public abstract class PowerButton {
         public void onClick(View v) {
             String type = (String)v.getTag();
 
-            for(Map.Entry<String, PowerButton> entry : BUTTONS.entrySet()) {
+            for(Map.Entry<String, PowerButton> entry : BUTTONS_LOADED.entrySet()) {
                 if(entry.getKey().equals(type)) {
                     entry.getValue().toggleState();
                     break;
@@ -177,11 +184,62 @@ public abstract class PowerButton {
         }
     };
 
-    public static PowerButton getButtonInstance(String button) {
-        if(BUTTONS.containsKey(button)) {
-            return BUTTONS.get(button);
+    public static boolean loadButton(String key, View view) {
+        // first make sure we have a valid button
+        if(BUTTONS.containsKey(key) && view != null) {
+            synchronized (BUTTONS_LOADED) {
+                if(BUTTONS_LOADED.containsKey(key)) {
+                    // setup the button again
+                    BUTTONS_LOADED.get(key).setupButton(view);
+                } else {
+                    try {
+                        // we need to instantiate a new button and add it
+                        PowerButton pb = BUTTONS.get(key).newInstance();
+                        // set it up
+                        pb.setupButton(view);
+                        // save it
+                        BUTTONS_LOADED.put(key, pb);
+                    } catch(Exception e) {
+                        Log.e(TAG, "Error loading button: " + key, e);
+                    }
+                }
+            }
+            return true;
         } else {
-            return null;
+            return false;
+        }
+    }
+
+    public static void unloadButton(String key) {
+        synchronized (BUTTONS_LOADED) {
+            // first make sure we have a valid button
+            if(BUTTONS_LOADED.containsKey(key)) {
+                // wipe out the button view
+                BUTTONS_LOADED.get(key).setupButton(null);
+                // remove the button from our list of loaded ones
+                BUTTONS_LOADED.remove(key);
+            }
+        }
+    }
+
+    public static void unloadAllButtons() {
+        synchronized (BUTTONS_LOADED) {
+            // cycle through setting the buttons to null
+            for(PowerButton pb : BUTTONS_LOADED.values()) {
+                pb.setupButton(null);
+            }
+
+            // clear our list
+            BUTTONS_LOADED.clear();
+        }
+    }
+
+    public static void updateAllButtons() {
+        synchronized (BUTTONS_LOADED) {
+            // cycle through our buttons and update them
+            for(PowerButton pb : BUTTONS_LOADED.values()) {
+                pb.update();
+            }
         }
     }
 
@@ -189,7 +247,7 @@ public abstract class PowerButton {
     public static IntentFilter getAllBroadcastIntentFilters() {
         IntentFilter filter = new IntentFilter();
 
-        for(PowerButton button : BUTTONS.values()) {
+        for(PowerButton button : BUTTONS_LOADED.values()) {
             IntentFilter tmp = button.getBroadcastIntentFilter();
 
             // cycle through these actions, and see if we need them
@@ -210,7 +268,7 @@ public abstract class PowerButton {
     public static List<Uri> getAllObservedUris() {
         List<Uri> uris = new ArrayList<Uri>();
 
-        for(PowerButton button : BUTTONS.values()) {
+        for(PowerButton button : BUTTONS_LOADED.values()) {
             List<Uri> tmp = button.getObservedUris();
 
             for(Uri uri : tmp) {
@@ -227,7 +285,7 @@ public abstract class PowerButton {
         String action = intent.getAction();
 
         // cycle through power buttons
-        for(PowerButton button : BUTTONS.values()) {
+        for(PowerButton button : BUTTONS_LOADED.values()) {
             // call "onReceive" on those that matter
             if(button.getBroadcastIntentFilter().hasAction(action)) {
                 button.onReceive(context, intent);
@@ -236,7 +294,7 @@ public abstract class PowerButton {
     }
 
     public static void handleOnChangeUri(Uri uri) {
-        for(PowerButton button : BUTTONS.values()) {
+        for(PowerButton button : BUTTONS_LOADED.values()) {
             if(button.getObservedUris().contains(uri)) {
                 button.onChangeUri(uri);
             }

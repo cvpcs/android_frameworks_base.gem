@@ -3,16 +3,18 @@ package com.android.server.status.galaxyswidget;
 import com.android.internal.R;
 
 import android.content.Context;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.provider.Settings;
+
+import com.android.internal.telephony.TelephonyIntents;
 
 public class MobileDataButton extends PowerButton {
 
     public static final String MOBILE_DATA_CHANGED = "com.android.internal.telephony.MOBILE_DATA_CHANGED";
 
     public static boolean STATE_CHANGE_REQUEST = false;
-    private static MobileDataButton OWN_BUTTON = null;
 
     public MobileDataButton() { mType = BUTTON_MOBILEDATA; }
 
@@ -44,9 +46,11 @@ public class MobileDataButton extends PowerButton {
         }
     }
 
-    public static MobileDataButton getInstance() {
-        if (OWN_BUTTON == null) OWN_BUTTON = new MobileDataButton();
-        return OWN_BUTTON;
+    @Override
+    protected IntentFilter getBroadcastIntentFilter() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(TelephonyIntents.ACTION_ANY_DATA_CONNECTION_STATE_CHANGED);
+        return filter;
     }
 
     private static boolean getDataRomingEnabled(Context context) {

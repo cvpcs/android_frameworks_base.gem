@@ -48,7 +48,7 @@ public class GalaxySWidget extends LinearLayout {
                              + BUTTON_DELIMITER + PowerButton.BUTTON_SOUND;
 
     private static final LinearLayout.LayoutParams BUTTON_LAYOUT_PARAMS = new LinearLayout.LayoutParams(
-                                        0,                                      // width = 0dip
+                                        LinearLayout.LayoutParams.WRAP_CONTENT,                                      // width = 0dip
                                         LinearLayout.LayoutParams.MATCH_PARENT, // height = match_parent
                                         1.0f                                    // weight = 1
                                         );
@@ -56,22 +56,14 @@ public class GalaxySWidget extends LinearLayout {
 
     private Context mContext;
     private LayoutInflater mInflater;
-    private SettingsObserver mObserver = null;
-
-    // button map [buttonid] => [buttonobj]
-    private HashMap<String, PowerButton> mButtons = new HashMap<String, PowerButton>();
+    private WidgetBroadcastReceiver mBroadcastReceiver = null;
+    private WidgetSettingsObserver mObserver = null;
 
     public GalaxySWidget(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         mContext = context;
         mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-        // set up a broadcast receiver for our intents, based off of what our power buttons need
-        IntentFilter filter = PowerButton.getAllBroadcastIntentFilters();
-        // we add this so we can update views and such if the settings for our widget change
-        filter.addAction(Settings.SETTINGS_CHANGED);
-        context.registerReceiver(mBroadcastReceiver, filter);
     }
 
     @Override
@@ -90,13 +82,17 @@ public class GalaxySWidget extends LinearLayout {
         // remove all views from the layout
         removeAllViews();
 
-        // clear the button instances
-        for(PowerButton button : mButtons.values()) {
-            button.setupButton(null);
+        // unregister our content receiver
+        if(mBroadcastReceiver != null) {
+            mContext.unregisterReceiver(mBroadcastReceiver);
+        }
+        // unobserve our content
+        if(mObserver != null) {
+            mObserver.unobserve();
         }
 
-        // clear our array of buttons
-        mButtons.clear();
+        // clear the button instances
+        PowerButton.unloadAllButtons();
 
         Log.i(TAG, "Setting up widget");
 
@@ -107,35 +103,46 @@ public class GalaxySWidget extends LinearLayout {
         }
         Log.i(TAG, "Button list: " + buttons);
 
-        mButtons = new HashMap<String, PowerButton>();
         for(String button : buttons.split("\\|")) {
-            PowerButton pb = PowerButton.getButtonInstance(button);
+            Log.i(TAG, "Setting up button: " + button);
+            // inflate our button, we don't add it to a parent and don't do any layout shit yet
+            View buttonView = mInflater.inflate(R.layout.galaxy_s_widget_button, null, false);
 
-            if(pb != null && !mButtons.containsKey(button)) {
-                Log.i(TAG, "Setting up button: " + button);
-                // inflate our button, we don't add it to a parent and don't do any layout shit yet
-                View buttonView = mInflater.inflate(R.layout.galaxy_s_widget_button, null, false);
+            if(PowerButton.loadButton(button, buttonView)) {
                 // add the button here
                 addView(buttonView, BUTTON_LAYOUT_PARAMS);
-                // set up our button around it
-                pb.setupButton(buttonView);
-                // store this for safe keeping
-                mButtons.put(button, pb);
+            } else {
+                Log.e(TAG, "Error setting up button: " + button);
             }
+        }
+
+        // set up a broadcast receiver for our intents, based off of what our power buttons have been loaded
+        setupBroadcastReceiver();
+        IntentFilter filter = PowerButton.getAllBroadcastIntentFilters();
+        // we add this so we can update views and such if the settings for our widget change
+        filter.addAction(Settings.SETTINGS_CHANGED);
+        // register the receiver
+        mContext.registerReceiver(mBroadcastReceiver, filter);
+        // register our observer
+        if(mObserver != null) {
+            mObserver.observe();
         }
     }
 
     public void setupSettingsObserver(Handler handler) {
         if(mObserver == null) {
-            mObserver = new SettingsObserver(handler);
-            mObserver.observe();
+            mObserver = new WidgetSettingsObserver(handler);
+        }
+    }
+
+    public void setupBroadcastReceiver() {
+        if(mBroadcastReceiver == null) {
+            mBroadcastReceiver = new WidgetBroadcastReceiver();
         }
     }
 
     public void updateWidget() {
-        for(PowerButton button : mButtons.values()) {
-            button.update();
-        }
+        PowerButton.updateAllButtons();
     }
 
     public void updateVisibility() {
@@ -150,7 +157,7 @@ public class GalaxySWidget extends LinearLayout {
     }
 
     // our own broadcast receiver :D
-    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+    private class WidgetBroadcastReceiver extends BroadcastReceiver {
         public void onReceive(Context context, Intent intent) {
             // handle the intent through our power buttons
             PowerButton.handleOnReceive(context, intent);
@@ -161,8 +168,8 @@ public class GalaxySWidget extends LinearLayout {
     };
 
     // our own settings observer :D
-    private class SettingsObserver extends ContentObserver {
-        public SettingsObserver(Handler handler) {
+    private class WidgetSettingsObserver extends ContentObserver {
+        public WidgetSettingsObserver(Handler handler) {
             super(handler);
         }
 
@@ -184,10 +191,16 @@ public class GalaxySWidget extends LinearLayout {
                     Settings.System.getUriFor(Settings.System.GALAXY_S_WIDGET_COLOR),
                             false, this);
 
-            // watch for power-button specifc stuff
+            // watch for power-button specifc stuff that has been loaded
             for(Uri uri : PowerButton.getAllObservedUris()) {
                 resolver.registerContentObserver(uri, false, this);
             }
+        }
+
+        public void unobserve() {
+            ContentResolver resolver = mContext.getContentResolver();
+
+            resolver.unregisterContentObserver(this);
         }
 
         @Override

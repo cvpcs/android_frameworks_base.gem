@@ -13,8 +13,6 @@ public class BluetoothButton extends PowerButton {
 
     private static final StateTracker sBluetoothState = new BluetoothStateTracker();
 
-    private static BluetoothButton OWN_BUTTON = null;
-
     private static final class BluetoothStateTracker extends StateTracker {
 
         @Override
@@ -121,10 +119,5 @@ public class BluetoothButton extends PowerButton {
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         return filter;
-    }
-
-    public static BluetoothButton getInstance() {
-        if (OWN_BUTTON == null) OWN_BUTTON = new BluetoothButton();
-        return OWN_BUTTON;
     }
 }

@@ -25,7 +25,6 @@ public class ScreenTimeoutButton extends PowerButton {
             600000,   // 10m
             1800000}; // 30m
 
-    private static ScreenTimeoutButton OWN_BUTTON = null;
     private static Toast TOAST = null;
 
     private static final List<Uri> OBSERVED_URIS = new ArrayList<Uri>();
@@ -92,11 +91,6 @@ public class ScreenTimeoutButton extends PowerButton {
     @Override
     protected List<Uri> getObservedUris() {
         return OBSERVED_URIS;
-    }
-
-    public static ScreenTimeoutButton getInstance() {
-        if (OWN_BUTTON == null) OWN_BUTTON = new ScreenTimeoutButton();
-        return OWN_BUTTON;
     }
 
     private static int getScreenTtimeout(Context context) {

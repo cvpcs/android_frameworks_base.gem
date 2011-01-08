@@ -11,8 +11,6 @@ import android.provider.Settings;
 
 public class SoundButton extends PowerButton {
 
-    private static SoundButton OWN_BUTTON = null;
-
     public static final int RINGER_MODE_UNKNOWN = 0;
     public static final int RINGER_MODE_SILENT = 1;
     public static final int RINGER_MODE_VIBRATE_ONLY = 2;
@@ -102,11 +100,6 @@ public class SoundButton extends PowerButton {
         filter.addAction(AudioManager.RINGER_MODE_CHANGED_ACTION);
         filter.addAction(AudioManager.VIBRATE_SETTING_CHANGED_ACTION);
         return filter;
-    }
-
-    public static SoundButton getInstance() {
-        if (OWN_BUTTON == null) OWN_BUTTON = new SoundButton();
-        return OWN_BUTTON;
     }
 
     private static int getSoundState(Context context) {

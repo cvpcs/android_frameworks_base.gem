@@ -27,8 +27,6 @@ public class NetworkModeButton extends PowerButton{
 
     private static final int DEFAULT_SETTING = 0;
 
-    private static NetworkModeButton OWN_BUTTON = null;
-
     private static int NETWORK_MODE = NO_NETWORK_MODE_YET;
     private static int INTENDED_NETWORK_MODE = NO_NETWORK_MODE_YET;
     private static int CURRENT_INTERNAL_STATE = STATE_INTERMEDIATE;
@@ -111,7 +109,7 @@ public class NetworkModeButton extends PowerButton{
         int widgetState = networkModeToState(context);
         CURRENT_INTERNAL_STATE = widgetState;
         if (widgetState == STATE_ENABLED) {
-            MobileDataButton.getInstance().networkModeChanged(context, NETWORK_MODE);
+//            MobileDataButton.getInstance().networkModeChanged(context, NETWORK_MODE);
         }
     }
 
@@ -120,11 +118,6 @@ public class NetworkModeButton extends PowerButton{
         IntentFilter filter = new IntentFilter();
         filter.addAction(NETWORK_MODE_CHANGED);
         return filter;
-    }
-
-    public static NetworkModeButton getInstance() {
-        if (OWN_BUTTON == null) OWN_BUTTON = new NetworkModeButton();
-        return OWN_BUTTON;
     }
 
     private static int get2G3G(Context context) {

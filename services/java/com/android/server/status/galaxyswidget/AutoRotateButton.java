@@ -11,8 +11,6 @@ import java.util.List;
 
 public class AutoRotateButton extends PowerButton {
 
-    private static AutoRotateButton OWN_BUTTON = null;
-
     private static final List<Uri> OBSERVED_URIS = new ArrayList<Uri>();
     static {
         OBSERVED_URIS.add(Settings.System.getUriFor(Settings.System.ACCELEROMETER_ROTATION));
@@ -48,11 +46,6 @@ public class AutoRotateButton extends PowerButton {
     @Override
     protected List<Uri> getObservedUris() {
         return OBSERVED_URIS;
-    }
-
-    public static AutoRotateButton getInstance() {
-        if (OWN_BUTTON == null) OWN_BUTTON = new AutoRotateButton();
-        return OWN_BUTTON;
     }
 
     private static int getOrientationState(Context context) {

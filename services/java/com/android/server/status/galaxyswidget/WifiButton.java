@@ -12,8 +12,6 @@ import android.util.Log;
 
 public class WifiButton extends PowerButton{
 
-    private static WifiButton OWN_BUTTON = null;
-
     private static final StateTracker sWifiState = new WifiStateTracker();
 
     /**
@@ -136,10 +134,5 @@ public class WifiButton extends PowerButton{
         IntentFilter filter = new IntentFilter();
         filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
         return filter;
-    }
-
-    public static WifiButton getInstance() {
-        if (OWN_BUTTON == null) OWN_BUTTON = new WifiButton();
-        return OWN_BUTTON;
     }
 }
