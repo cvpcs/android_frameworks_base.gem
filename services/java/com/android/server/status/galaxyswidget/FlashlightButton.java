@@ -39,7 +39,8 @@ public class FlashlightButton extends PowerButton {
 
         // only do this if the flashlight exists
         if(FLASHLIGHT != null && FLASHLIGHT.exists()) {
-            mFlashlightObserver = new FileObserver(FLASHLIGHT.getAbsolutePath()) {
+            mFlashlightObserver = new FileObserver(FLASHLIGHT.getAbsolutePath(),
+                                                   FileObserver.MODIFY) {
                     public void onEvent(int event, String path) {
                         // update state/view if something happened
                         update();
