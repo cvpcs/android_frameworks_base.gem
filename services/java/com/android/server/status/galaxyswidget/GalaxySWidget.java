@@ -28,16 +28,20 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
+import android.view.ViewGroup;
 
 import com.android.internal.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class GalaxySWidget extends LinearLayout {
+public class GalaxySWidget extends FrameLayout {
     private static final String TAG = "GalaxySWidget";
 
     public static final String BUTTON_DELIMITER = "|";
@@ -47,12 +51,18 @@ public class GalaxySWidget extends LinearLayout {
                              + BUTTON_DELIMITER + PowerButton.BUTTON_GPS
                              + BUTTON_DELIMITER + PowerButton.BUTTON_SOUND;
 
+    private static final FrameLayout.LayoutParams WIDGET_LAYOUT_PARAMS = new FrameLayout.LayoutParams(
+                                        ViewGroup.LayoutParams.MATCH_PARENT, // width = match_parent
+                                        ViewGroup.LayoutParams.WRAP_CONTENT  // height = wrap_content
+                                        );
+
     private static final LinearLayout.LayoutParams BUTTON_LAYOUT_PARAMS = new LinearLayout.LayoutParams(
-                                        LinearLayout.LayoutParams.WRAP_CONTENT,                                      // width = 0dip
-                                        LinearLayout.LayoutParams.MATCH_PARENT, // height = match_parent
+                                        ViewGroup.LayoutParams.WRAP_CONTENT, // width = wrap_content
+                                        ViewGroup.LayoutParams.MATCH_PARENT, // height = match_parent
                                         1.0f                                    // weight = 1
                                         );
 
+    private static final int LAYOUT_SCROLL_BUTTON_THRESHOLD = 6;
 
     private Context mContext;
     private LayoutInflater mInflater;
@@ -64,6 +74,9 @@ public class GalaxySWidget extends LinearLayout {
 
         mContext = context;
         mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        // use our context to set a valid button width
+        BUTTON_LAYOUT_PARAMS.width = mContext.getResources().getDisplayMetrics().widthPixels / LAYOUT_SCROLL_BUTTON_THRESHOLD;
     }
 
     @Override
@@ -103,6 +116,12 @@ public class GalaxySWidget extends LinearLayout {
         }
         Log.i(TAG, "Button list: " + buttons);
 
+        // create a linearlayout to hold our buttons
+        LinearLayout ll = new LinearLayout(mContext);
+        ll.setOrientation(LinearLayout.HORIZONTAL);
+        ll.setGravity(Gravity.CENTER_HORIZONTAL);
+
+        int buttonCount = 0;
         for(String button : buttons.split("\\|")) {
             Log.i(TAG, "Setting up button: " + button);
             // inflate our button, we don't add it to a parent and don't do any layout shit yet
@@ -110,10 +129,22 @@ public class GalaxySWidget extends LinearLayout {
 
             if(PowerButton.loadButton(button, buttonView)) {
                 // add the button here
-                addView(buttonView, BUTTON_LAYOUT_PARAMS);
+                ll.addView(buttonView, BUTTON_LAYOUT_PARAMS);
+                buttonCount++;
             } else {
                 Log.e(TAG, "Error setting up button: " + button);
             }
+        }
+
+        // we determine if we're using a horizontal scroll view based on a threshold of button counts
+        if(buttonCount > LAYOUT_SCROLL_BUTTON_THRESHOLD) {
+            // we need our horizontal scroll view to wrap the linear layout
+            HorizontalScrollView hsv = new HorizontalScrollView(mContext);
+            hsv.addView(ll, WIDGET_LAYOUT_PARAMS);
+            addView(hsv, WIDGET_LAYOUT_PARAMS);
+        } else {
+            // not needed, just add the linear layout
+            addView(ll, WIDGET_LAYOUT_PARAMS);
         }
 
         // set up a broadcast receiver for our intents, based off of what our power buttons have been loaded
