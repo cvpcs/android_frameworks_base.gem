@@ -140,6 +140,11 @@ public class GalaxySWidget extends FrameLayout {
         if(buttonCount > LAYOUT_SCROLL_BUTTON_THRESHOLD) {
             // we need our horizontal scroll view to wrap the linear layout
             HorizontalScrollView hsv = new HorizontalScrollView(mContext);
+            // make the fading edge the size of a button (makes it more noticible that we can scroll
+            hsv.setFadingEdgeLength(mContext.getResources().getDisplayMetrics().widthPixels / LAYOUT_SCROLL_BUTTON_THRESHOLD);
+            hsv.setScrollBarStyle(View.SCROLLBARS_INSIDE_INSET);
+            // set the padding on the linear layout to the size of our scrollbar, so we don't have them overlap
+            ll.setPadding(ll.getPaddingLeft(), ll.getPaddingTop(), ll.getPaddingRight(), hsv.getVerticalScrollbarWidth());
             hsv.addView(ll, WIDGET_LAYOUT_PARAMS);
             addView(hsv, WIDGET_LAYOUT_PARAMS);
         } else {
