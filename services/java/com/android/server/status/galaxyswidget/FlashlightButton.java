@@ -119,7 +119,7 @@ public class FlashlightButton extends PowerButton {
         FileWriter fw = null;
 
         try {
-            fw = new FileWriter(FLASHLIGHT_FILE);
+            fw = new FileWriter(FLASHLIGHT);
             int value = (enabled ? 1 : 0);
             fw.write(String.valueOf(value));
         } catch (Exception e) {
